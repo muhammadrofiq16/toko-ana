@@ -302,6 +302,32 @@
                     </div>
                 @endif
 
+                @if(session('error'))
+                    <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-semibold flex items-center justify-between shadow-xs">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+                            <span>{{ session('error') }}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-900">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-semibold shadow-xs">
+                        <div class="flex items-center gap-2 mb-2 font-bold text-red-900">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+                            <span>Terjadi kesalahan input:</span>
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-xs text-red-700 ml-2">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @yield('content')
             </main>
         </div>

@@ -19,19 +19,19 @@
         <div class="flex items-center gap-2">
             <!-- Period Toggle Buttons -->
             <div class="bg-slate-100 p-1 rounded-xl flex items-center overflow-x-auto whitespace-nowrap gap-1 text-xs font-semibold text-slate-600">
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['period' => 'today'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['period' => 'today'])) }}" 
                    class="px-3 py-1.5 rounded-lg {{ $period == 'today' ? 'bg-white text-brand-800 shadow-xs border border-slate-200' : 'hover:text-slate-900' }}">
                    Hari Ini
                 </a>
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['period' => 'week'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['period' => 'week'])) }}" 
                    class="px-3 py-1.5 rounded-lg {{ $period == 'week' ? 'bg-white text-brand-800 shadow-xs border border-slate-200' : 'hover:text-slate-900' }}">
                    Pekan Ini
                 </a>
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['period' => 'month'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['period' => 'month'])) }}" 
                    class="px-3 py-1.5 rounded-lg {{ $period == 'month' ? 'bg-white text-brand-800 shadow-xs border border-slate-200' : 'hover:text-slate-900' }}">
                    Bulan Ini
                 </a>
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['period' => 'all'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['period' => 'all'])) }}" 
                    class="px-3 py-1.5 rounded-lg {{ $period == 'all' ? 'bg-white text-brand-800 shadow-xs border border-slate-200' : 'hover:text-slate-900' }}">
                    Semua
                 </a>
@@ -179,13 +179,13 @@
         <!-- Tabs Bar -->
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div class="flex items-center gap-2 overflow-x-auto">
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['tab' => 'semua'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['tab' => 'semua'])) }}" 
                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $tab == 'semua' ? 'bg-brand-700 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                     <i data-lucide="layers" class="w-3.5 h-3.5"></i>
                     <span>Semua Arus Kas</span>
                 </a>
 
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['tab' => 'pemasukan'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['tab' => 'pemasukan'])) }}" 
                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $tab == 'pemasukan' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                     <i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i>
                     <span>Pemasukan (Penjualan)</span>
@@ -194,7 +194,7 @@
                     </span>
                 </a>
 
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['tab' => 'pengeluaran'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['tab' => 'pengeluaran'])) }}" 
                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $tab == 'pengeluaran' ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                     <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                     <span>Pengeluaran (Suplier)</span>
@@ -204,7 +204,7 @@
                 </a>
 
                 <!-- Segmen 5: Laporan Pengeluaran & Mutasi (Pengganti Menu Laporan) -->
-                <a href="{{ route('transaksi.index', array_merge(request()->query(), ['tab' => 'laporan'])) }}" 
+                <a href="{{ route('transaksi.index', array_merge(\Illuminate\Support\Arr::except(request()->query(), ['page']), ['tab' => 'laporan'])) }}" 
                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $tab == 'laporan' ? 'bg-brand-dark text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                     <i data-lucide="line-chart" class="w-3.5 h-3.5"></i>
                     <span>Laporan Pengeluaran & Mutasi</span>

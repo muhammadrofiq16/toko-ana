@@ -29,9 +29,13 @@
             <i data-lucide="printer" class="w-4 h-4"></i>
             <span>Cetak Struk</span>
         </button>
+        <a href="{{ route('transaksi.index') }}" class="bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm px-5 py-2.5 rounded-xl flex items-center gap-2 shadow border border-slate-200 transition-all">
+            <i data-lucide="receipt" class="w-4 h-4 text-brand-600"></i>
+            <span>Riwayat Transaksi</span>
+        </a>
         <a href="{{ route('kasir.index') }}" class="bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm px-5 py-2.5 rounded-xl flex items-center gap-2 shadow border border-slate-200 transition-all">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            <span>Kembali ke Kasir</span>
+            <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
+            <span>Transaksi Baru</span>
         </a>
     </div>
 

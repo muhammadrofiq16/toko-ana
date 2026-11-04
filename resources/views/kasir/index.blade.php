@@ -176,40 +176,39 @@
                             <span class="text-2xl font-black text-brand-800" x-text="formatRupiah(totalAmount)"></span>
                         </div>
 
-                        <!-- Payment Method -->
-                        <div class="grid grid-cols-4 gap-2 mb-4">
-                            <button @click="paymentMethod = 'tunai'" class="py-2 px-1 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1 transition-all" :class="paymentMethod === 'tunai' ? 'bg-brand-600 border-brand-600 text-white shadow-md' : 'bg-white border-brand-200 text-slate-600 hover:bg-brand-50'">
-                                <i data-lucide="banknote" class="w-4 h-4"></i> Tunai
+                        <!-- Payment Method (Tunai & Transfer) -->
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <button type="button" @click="paymentMethod = 'tunai'" class="py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all" :class="paymentMethod === 'tunai' ? 'bg-brand-600 border-brand-600 text-white shadow-md' : 'bg-white border-brand-200 text-slate-600 hover:bg-brand-50'">
+                                <i data-lucide="banknote" class="w-4 h-4"></i> Tunai (Cash)
                             </button>
-                            <button @click="paymentMethod = 'qris'" class="py-2 px-1 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1 transition-all" :class="paymentMethod === 'qris' ? 'bg-brand-600 border-brand-600 text-white shadow-md' : 'bg-white border-brand-200 text-slate-600 hover:bg-brand-50'">
-                                <i data-lucide="qr-code" class="w-4 h-4"></i> QRIS
-                            </button>
-                            <button @click="paymentMethod = 'transfer'" class="py-2 px-1 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1 transition-all" :class="paymentMethod === 'transfer' ? 'bg-brand-600 border-brand-600 text-white shadow-md' : 'bg-white border-brand-200 text-slate-600 hover:bg-brand-50'">
-                                <i data-lucide="smartphone" class="w-4 h-4"></i> Trf/EDC
-                            </button>
-                            <button @click="paymentMethod = 'hutang'" class="py-2 px-1 rounded-lg border text-xs font-semibold flex flex-col items-center gap-1 transition-all" :class="paymentMethod === 'hutang' ? 'bg-orange-500 border-orange-500 text-white shadow-md' : 'bg-white border-brand-200 text-slate-600 hover:bg-brand-50'">
-                                <i data-lucide="book" class="w-4 h-4"></i> Piutang
+                            <button type="button" @click="paymentMethod = 'transfer'" class="py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all" :class="paymentMethod === 'transfer' ? 'bg-brand-600 border-brand-600 text-white shadow-md' : 'bg-white border-brand-200 text-slate-600 hover:bg-brand-50'">
+                                <i data-lucide="send" class="w-4 h-4"></i> Transfer Bank
                             </button>
                         </div>
 
-                        <!-- Input Nominal (Only for Tunai/Hutang) -->
-                        <div x-show="['tunai', 'hutang'].includes(paymentMethod)" class="mb-4 space-y-2">
+                        <!-- Input Nominal (Only for Tunai) -->
+                        <div x-show="paymentMethod === 'tunai'" class="mb-4 space-y-2">
                             <div class="flex justify-between items-center">
-                                <label class="text-xs font-medium text-brand-700" x-text="paymentMethod === 'hutang' ? 'Uang Muka (DP)' : 'Nominal Diterima'"></label>
+                                <label class="text-xs font-medium text-brand-700">Nominal Diterima</label>
                                 <span class="text-xs font-bold text-brand-600" x-show="paidAmount - totalAmount > 0" x-text="'Kembali: ' + formatRupiah(paidAmount - totalAmount)"></span>
-                                <span class="text-xs font-bold text-orange-500" x-show="paymentMethod === 'hutang' && totalAmount - paidAmount > 0" x-text="'Sisa: ' + formatRupiah(totalAmount - paidAmount)"></span>
                             </div>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-brand-500 font-medium">Rp</span>
                                 <input type="number" x-model.number="paidAmount" class="w-full pl-9 pr-3 py-2 bg-white border border-brand-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-lg font-bold text-slate-800 outline-none" min="0">
                             </div>
                             <!-- Quick Amounts -->
-                            <div x-show="paymentMethod === 'tunai'" class="flex flex-wrap gap-1.5 mt-2">
-                                <button @click="paidAmount = totalAmount" class="text-[10px] bg-white hover:bg-brand-50 text-brand-700 px-2 py-1 rounded font-medium border border-brand-200">Uang Pas</button>
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                                <button type="button" @click="paidAmount = totalAmount" class="text-[10px] bg-white hover:bg-brand-50 text-brand-700 px-2.5 py-1 rounded-md font-semibold border border-brand-200 shadow-2xs">Uang Pas</button>
                                 <template x-for="amt in quickAmounts" :key="amt">
-                                    <button @click="paidAmount = amt" class="text-[10px] bg-white hover:bg-brand-50 text-brand-700 px-2 py-1 rounded font-medium border border-brand-200" x-text="formatRupiahShort(amt)"></button>
+                                    <button type="button" @click="paidAmount = amt" class="text-[10px] bg-white hover:bg-brand-50 text-brand-700 px-2.5 py-1 rounded-md font-semibold border border-brand-200 shadow-2xs" x-text="formatRupiahShort(amt)"></button>
                                 </template>
                             </div>
+                        </div>
+
+                        <!-- Transfer Info Box -->
+                        <div x-show="paymentMethod === 'transfer'" class="mb-4 p-3 bg-brand-50/70 border border-brand-200 rounded-xl flex items-center gap-2 text-xs text-brand-800">
+                            <i data-lucide="info" class="w-4 h-4 text-brand-600 shrink-0"></i>
+                            <span>Pembayaran via Transfer Bank (nominal lunas sesuai total belanja).</span>
                         </div>
 
                         <!-- Manual Customer Name (If not selected) -->
@@ -226,12 +225,12 @@
                         <form id="checkoutForm" action="{{ route('kasir.checkout') }}" method="POST" @submit.prevent="submitCheckout">
                             @csrf
                             <input type="hidden" name="items" x-ref="itemsInput">
-                            <input type="hidden" name="payment_method" x-model="paymentMethod">
-                            <input type="hidden" name="paid_amount" x-model="paidAmount">
-                            <input type="hidden" name="sale_mode" x-model="saleMode">
+                            <input type="hidden" name="payment_method" :value="paymentMethod">
+                            <input type="hidden" name="paid_amount" :value="paidAmount">
+                            <input type="hidden" name="sale_mode" :value="saleMode">
                             <input type="hidden" name="customer_id" :value="selectedCustomer ? selectedCustomer.id : ''">
-                            <input type="hidden" name="customer_name" x-model="customerNameManual">
-                            <input type="hidden" name="notes" x-model="notes">
+                            <input type="hidden" name="customer_name" :value="selectedCustomer ? selectedCustomer.name : customerNameManual">
+                            <input type="hidden" name="notes" :value="notes">
 
                             <button type="submit" 
                                 class="w-full py-3.5 rounded-xl font-bold text-white flex justify-center items-center gap-2 transition-all shadow-lg hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
@@ -341,13 +340,13 @@
                 
                 // Watch for total changes to update default paidAmount
                 this.$watch('totalAmount', (value) => {
-                    if(this.paymentMethod !== 'tunai' && this.paymentMethod !== 'hutang') {
+                    if (this.paymentMethod === 'transfer') {
                         this.paidAmount = value;
                     }
                 });
                 
                 this.$watch('paymentMethod', (val) => {
-                    if(['qris', 'transfer'].includes(val)) {
+                    if (val === 'transfer') {
                         this.paidAmount = this.totalAmount;
                     } else if (val === 'tunai' && this.paidAmount < this.totalAmount) {
                         this.paidAmount = this.totalAmount;
@@ -603,11 +602,24 @@
                     quantity: item.quantity
                 }));
                 
+                const form = document.getElementById('checkoutForm');
                 this.$refs.itemsInput.value = JSON.stringify(cartData);
+                if (form) {
+                    const setVal = (name, val) => {
+                        const el = form.querySelector(`[name="${name}"]`);
+                        if (el) el.value = val;
+                    };
+                    setVal('payment_method', this.paymentMethod);
+                    setVal('paid_amount', this.paidAmount);
+                    setVal('sale_mode', this.saleMode);
+                    setVal('customer_id', this.selectedCustomer ? this.selectedCustomer.id : '');
+                    setVal('customer_name', this.selectedCustomer ? this.selectedCustomer.name : this.customerNameManual);
+                    setVal('notes', this.notes || '');
+                }
                 
                 // Small delay to allow alpine to update DOM bindings before actual submission
                 setTimeout(() => {
-                    document.getElementById('checkoutForm').submit();
+                    form.submit();
                 }, 100);
             }
         }));

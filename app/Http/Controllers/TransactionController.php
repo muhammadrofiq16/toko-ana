@@ -39,19 +39,26 @@ class TransactionController extends Controller
             if ($dateTo) $endDate = Carbon::parse($dateTo)->endOfDay();
         }
 
+        // Helper to apply date filter to queries
+        $applyDateFilter = function ($query) use ($startDate, $endDate) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            } elseif ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            } elseif ($endDate) {
+                $query->where('created_at', '<=', $endDate);
+            }
+        };
+
         // 1. Calculate Period Totals for Balance Cards
         $incomeQuery = Transaction::where('status', 'success');
-        if ($startDate && $endDate) {
-            $incomeQuery->whereBetween('created_at', [$startDate, $endDate]);
-        }
+        $applyDateFilter($incomeQuery);
         $periodIncome = (float) $incomeQuery->sum('total_amount');
         $periodIncomeCount = $incomeQuery->count();
 
         // Expenses = StockMovements where type = 'in' (Pembelian Suplier)
         $expenseQuery = StockMovement::where('type', 'in')->with('product');
-        if ($startDate && $endDate) {
-            $expenseQuery->whereBetween('created_at', [$startDate, $endDate]);
-        }
+        $applyDateFilter($expenseQuery);
         $expenseMovements = $expenseQuery->get();
         $periodExpense = (float) $expenseMovements->sum(function($m) {
             return (float) ($m->quantity * ($m->product->cost_price ?? 0));
@@ -105,10 +112,14 @@ class TransactionController extends Controller
             ->sum(fn($m) => (float)($m->quantity * ($m->product->cost_price ?? 0)));
 
         // 4. Fetch list based on Tab (semua, pemasukan, pengeluaran, laporan)
-        $transQuery = Transaction::with(['items', 'customer'])->latest();
-        if ($startDate && $endDate) $transQuery->whereBetween('created_at', [$startDate, $endDate]);
-        if ($payment) $transQuery->where('payment_method', $payment);
-        if ($status && $status !== 'all') $transQuery->where('status', $status);
+        $transQuery = Transaction::with(['items', 'customer'])->latest('created_at')->latest('id');
+        $applyDateFilter($transQuery);
+        if ($payment && $payment !== 'all') {
+            $transQuery->whereRaw('LOWER(payment_method) = ?', [strtolower($payment)]);
+        }
+        if ($status && $status !== 'all') {
+            $transQuery->where('status', $status);
+        }
         if ($search) {
             $transQuery->where(function($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
@@ -117,8 +128,8 @@ class TransactionController extends Controller
             });
         }
 
-        $smQuery = StockMovement::where('type', 'in')->with('product')->latest();
-        if ($startDate && $endDate) $smQuery->whereBetween('created_at', [$startDate, $endDate]);
+        $smQuery = StockMovement::where('type', 'in')->with('product')->latest('created_at')->latest('id');
+        $applyDateFilter($smQuery);
         if ($search) {
             $smQuery->where(function($q) use ($search) {
                 $q->where('source_category', 'like', "%{$search}%")
@@ -136,6 +147,11 @@ class TransactionController extends Controller
         if (in_array($tab, ['semua', 'pemasukan'])) {
             $transList = $transQuery->get();
             foreach ($transList as $t) {
+                $desc = $t->items->pluck('product_name')->take(2)->implode(', ') . ($t->items->count() > 2 ? ' +' . ($t->items->count() - 2) . ' item' : '');
+                if (empty(trim($desc))) {
+                    $desc = 'Penjualan Kasir (' . $t->items->count() . ' item)';
+                }
+
                 $combined->push((object)[
                     'id'             => $t->id,
                     'type'           => 'income',
@@ -143,7 +159,7 @@ class TransactionController extends Controller
                     'date'           => $t->created_at,
                     'party_name'     => $t->customer_name ?: 'Pelanggan Umum',
                     'party_type'     => $t->customer ? $t->customer->type_label : 'Retail',
-                    'description'    => $t->items->pluck('product_name')->take(2)->implode(', ') . ($t->items->count() > 2 ? ' +' . ($t->items->count() - 2) . ' item' : ''),
+                    'description'    => $desc,
                     'payment_method' => $t->payment_method,
                     'amount'         => (float)$t->total_amount,
                     'status'         => $t->status_label,
@@ -185,8 +201,15 @@ class TransactionController extends Controller
             }
         }
 
-        // Sort descending by date
-        $sorted = $combined->sortByDesc('date')->values();
+        // Sort descending by date & id
+        $sorted = $combined->sort(function ($a, $b) {
+            $timeA = $a->date ? $a->date->timestamp : 0;
+            $timeB = $b->date ? $b->date->timestamp : 0;
+            if ($timeA === $timeB) {
+                return ($b->id ?? 0) <=> ($a->id ?? 0);
+            }
+            return $timeB <=> $timeA;
+        })->values();
 
         // Paginate manually
         $perPage = 10;

@@ -59,8 +59,9 @@ class Transaction extends Model
             'Tunai'    => 'banknote',
             'QRIS'     => 'qr-code',
             'Transfer' => 'send',
-            'Debit'    => 'credit-card',
-            default    => 'wallet',
+            'Debit'             => 'credit-card',
+            'Piutang', 'Hutang' => 'book',
+            default             => 'wallet',
         };
     }
 
