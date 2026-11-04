@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIKOL - Inventaris Kelontong</title>
+    <title>{{ $appSettings['store_name'] ?? 'Toko Kelontong' }} - Inventaris & Kasir</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -50,17 +50,19 @@
             <div class="p-4">
                 <!-- Logo & Brand Header -->
                 <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-700 font-bold text-xl">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-700 font-bold text-xl shrink-0">
                             <i data-lucide="store" class="w-5 h-5 text-brand-700"></i>
                         </div>
-                        <div>
-                            <h1 class="font-extrabold text-lg text-slate-900 leading-tight tracking-tight">SIKOL</h1>
-                            <p class="text-xs text-slate-500 font-medium">Inventaris Kelontong</p>
+                        <div class="overflow-hidden min-w-0">
+                            <h1 class="font-extrabold text-base text-slate-900 leading-tight tracking-tight truncate" title="{{ $appSettings['store_name'] ?? 'Toko Kelontong' }}">
+                                {{ $appSettings['store_name'] ?? 'Toko Kelontong' }}
+                            </h1>
+                            <p class="text-[11px] text-slate-400 font-medium truncate">Inventaris & Kasir</p>
                         </div>
                     </div>
                     <!-- Close Sidebar Button (Mobile) -->
-                    <button @click="sidebarOpen = false" class="lg:hidden p-2 text-slate-400 hover:bg-slate-100 rounded-lg">
+                    <button @click="sidebarOpen = false" class="lg:hidden p-2 text-slate-400 hover:bg-slate-100 rounded-lg shrink-0">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -71,38 +73,53 @@
                 </div>
 
                 <nav class="space-y-0.5">
+                    <!-- Kasir POS (Accessible by Kasir & Admin) -->
                     <a href="{{ route('kasir.index') }}" 
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('kasir.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                         <i data-lucide="monitor" class="w-4.5 h-4.5 {{ request()->routeIs('kasir.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
-                        <span>Kasir</span>
+                        <span>Kasir POS</span>
                     </a>
 
+                    @if(auth()->user() && auth()->user()->isAdmin())
+                    <!-- Pelanggan & Suplier (Admin Only) -->
                     <a href="{{ route('pelanggan.index') }}" 
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('pelanggan.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                         <i data-lucide="users" class="w-4.5 h-4.5 {{ request()->routeIs('pelanggan.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
                         <span>Pelanggan & Suplier</span>
                     </a>
 
+                    <!-- Riwayat Transaksi & Laporan (Admin Only) -->
                     <a href="{{ route('transaksi.index') }}" 
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('transaksi.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                         <i data-lucide="receipt" class="w-4.5 h-4.5 {{ request()->routeIs('transaksi.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
                         <span>Riwayat Transaksi</span>
                     </a>
+                    @endif
 
                     <div class="pt-2 pb-1">
                         <span class="text-[10px] font-bold text-slate-400 tracking-wider uppercase px-3">DATA & KELOLA</span>
                     </div>
 
+                    <!-- Dashboard (Both Kasir & Admin) -->
                     <a href="{{ route('dashboard') }}" 
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('dashboard') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                         <i data-lucide="layout-grid" class="w-4.5 h-4.5 {{ request()->routeIs('dashboard') ? 'text-brand-700' : 'text-slate-400' }}"></i>
                         <span>Dashboard</span>
                     </a>
 
+                    <!-- Catat Stok Masuk (Accessible by Kasir & Admin - Now in DATA & KELOLA) -->
+                    <a href="{{ route('stok.index') }}" 
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('stok.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <i data-lucide="package-plus" class="w-4.5 h-4.5 {{ request()->routeIs('stok.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
+                        <span>Catat Stok Masuk</span>
+                    </a>
+
+                    @if(auth()->user() && auth()->user()->isAdmin())
+                    <!-- Master Stok Barang (Admin Only) -->
                     <a href="{{ route('products.index') }}" 
-                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('products.*') || request()->routeIs('stok.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                        <i data-lucide="package-search" class="w-4.5 h-4.5 {{ request()->routeIs('products.*') || request()->routeIs('stok.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
-                        <span>Stok Barang</span>
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('products.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <i data-lucide="package-search" class="w-4.5 h-4.5 {{ request()->routeIs('products.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
+                        <span>Master Data Barang</span>
                         @php
                             $lowStockCount = \App\Models\Product::where(function($q) { $q->whereRaw('stock <= min_stock'); })->count();
                             $nearExpiryCount = \App\Models\Product::whereNotNull('expiry_date')->where('expiry_date', '<=', \Carbon\Carbon::now()->addDays(30))->count();
@@ -113,38 +130,60 @@
                         @endif
                     </a>
 
+                    <!-- Manajemen Akun (Admin Only) -->
+                    <a href="{{ route('pengguna.index') }}" 
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('pengguna.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                        <i data-lucide="user-cog" class="w-4.5 h-4.5 {{ request()->routeIs('pengguna.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
+                        <span>Manajemen Akun</span>
+                    </a>
+
+                    <!-- Pengaturan Toko (Admin Only) -->
                     <a href="{{ route('pengaturan.index') }}" 
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('pengaturan.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                         <i data-lucide="sliders" class="w-4.5 h-4.5 {{ request()->routeIs('pengaturan.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
                         <span>Pengaturan</span>
                     </a>
+                    @endif
                 </nav>
             </div>
 
             <!-- Sidebar Bottom Profile Section -->
             <div class="p-4 border-t border-slate-100 space-y-3">
                 <!-- Toko Status Pill -->
-                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between text-xs font-semibold">
-                    <div class="flex items-center gap-2 text-slate-700">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>Toko Berkah</span>
+                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between text-xs font-semibold gap-2">
+                    <div class="flex items-center gap-2 text-slate-700 min-w-0">
+                        @php
+                            $status = $appSettings['store_status'] ?? 'Buka (Operasional Normal)';
+                            $isOpen = str_starts_with($status, 'Buka');
+                        @endphp
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0 {{ $isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500' }}"></span>
+                        <span class="truncate font-medium">{{ $appSettings['store_name'] ?? 'Toko Berkah' }}</span>
                     </div>
-                    <span class="text-brand-700 font-bold bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">Buka</span>
+                    <span class="text-brand-700 font-bold bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200 shrink-0 text-[11px]">{{ $isOpen ? 'Buka' : ($status === 'Maintenance' ? 'Maint' : 'Tutup') }}</span>
                 </div>
 
                 <!-- User Profile Card -->
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" 
-                             alt="Budi Santoso" class="w-9 h-9 rounded-full object-cover border border-slate-200">
-                        <div class="overflow-hidden">
-                            <p class="text-xs font-bold text-slate-900 truncate">Budi Santoso</p>
-                            <p class="text-[11px] text-slate-400 truncate">Kasir</p>
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-9 h-9 rounded-full bg-brand-100 text-brand-800 border border-brand-200 flex items-center justify-center font-bold text-xs shrink-0">
+                            {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                        </div>
+                        <div class="overflow-hidden min-w-0">
+                            <p class="text-xs font-bold text-slate-900 truncate">{{ Auth::user()->name ?? 'Pengguna' }}</p>
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <span class="inline-block w-1.5 h-1.5 rounded-full {{ Auth::user() && Auth::user()->isAdmin() ? 'bg-indigo-500' : 'bg-emerald-500' }}"></span>
+                                <p class="text-[10px] font-semibold uppercase tracking-wider {{ Auth::user() && Auth::user()->isAdmin() ? 'text-indigo-600' : 'text-emerald-600' }}">
+                                    {{ Auth::user() && Auth::user()->isAdmin() ? 'Admin Toko' : 'Kasir POS' }}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <button class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                    </button>
+                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" title="Keluar / Ganti Shift" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors shrink-0">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>

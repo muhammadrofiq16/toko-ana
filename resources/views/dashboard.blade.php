@@ -99,6 +99,7 @@
                     </div>
                     <p class="text-[11px] text-slate-400 font-medium mt-0.5">Total stok fisik</p>
                 </div>
+                @if(auth()->user() && auth()->user()->isAdmin())
                 <div class="pt-2.5 border-t border-slate-100">
                     <div class="flex items-baseline gap-1.5">
                         <span class="text-lg font-bold text-brand-700">Rp {{ number_format($inventoryValue / 1000000, 1, ',', '.') }}</span>
@@ -106,6 +107,15 @@
                     </div>
                     <p class="text-[11px] text-slate-400 font-medium mt-0.5">Estimasi nilai persediaan</p>
                 </div>
+                @else
+                <div class="pt-2.5 border-t border-slate-100">
+                    <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        <span>Akses Kasir</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 font-medium mt-0.5">Mode operasional POS aktif</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -118,10 +128,17 @@
                 <h3 class="font-bold text-slate-900 text-base">Barang Prioritas Restock</h3>
                 <p class="text-xs text-slate-400 mt-0.5 font-medium">Item dengan stok berada di bawah batas minimum keamanan</p>
             </div>
+            @if(auth()->user() && auth()->user()->isAdmin())
             <a href="{{ route('products.index', ['status' => 'menipis']) }}" class="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1 bg-brand-50 px-3 py-1.5 rounded-lg border border-brand-200/50 transition-all hover:bg-brand-100">
                 <span>Lihat Semua ({{ $totalCriticalCount }})</span>
                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
             </a>
+            @else
+            <a href="{{ route('stok.index') }}" class="text-xs font-bold text-brand-700 hover:text-brand-800 flex items-center gap-1 bg-brand-50 px-3 py-1.5 rounded-lg border border-brand-200/50 transition-all hover:bg-brand-100">
+                <span>Catat Stok Masuk ({{ $totalCriticalCount }})</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+            @endif
         </div>
 
         <!-- Table -->

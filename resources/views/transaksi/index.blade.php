@@ -8,7 +8,7 @@
             <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <span>KEUANGAN & OPERASIONAL</span>
                 <span>•</span>
-                <span class="text-brand-700 font-semibold">SIKOL SYSTEM</span>
+                <span class="text-brand-700 font-semibold">{{ strtoupper($appSettings['store_name'] ?? 'SISTEM TOKO') }}</span>
             </div>
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight mt-1">Riwayat Transaksi & Arus Kas</h2>
             <p class="text-xs text-slate-500 font-medium mt-0.5">

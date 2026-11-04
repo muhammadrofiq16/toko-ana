@@ -32,14 +32,6 @@
         </div>
 
         <div class="flex items-center gap-3">
-            {{-- AI Scan Faktur Button --}}
-            <button @click="openScanModal()" type="button"
-                class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center gap-2.5 shadow-lg shadow-violet-200 transition-all hover:shadow-xl hover:shadow-violet-300 hover:-translate-y-0.5">
-                <i data-lucide="scan-eye" class="w-4 h-4"></i>
-                <span>Scan Faktur (AI)</span>
-                <span class="bg-white/20 text-[10px] px-1.5 py-0.5 rounded font-bold">BARU</span>
-            </button>
-
             <!-- Mode Label (Stok Masuk Only) -->
             <div class="bg-emerald-50 border border-emerald-200 p-1 rounded-xl flex items-center gap-1 text-xs font-semibold text-emerald-800">
                 <div class="px-4 py-2 rounded-lg flex items-center gap-2 bg-white shadow-xs">

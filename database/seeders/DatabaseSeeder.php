@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed Users (Admin & Kasir)
+        $this->call(UserSeeder::class);
+
         // Truncate tables
         Product::query()->delete();
         StockMovement::query()->delete();

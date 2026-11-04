@@ -29,7 +29,7 @@
             <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <span>INVENTARIS & LOGISTIK</span>
                 <span>•</span>
-                <span class="text-brand-700 font-semibold">SIKOL SYSTEM</span>
+                <span class="text-brand-700 font-semibold">{{ strtoupper($appSettings['store_name'] ?? 'SISTEM TOKO') }}</span>
             </div>
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight mt-1">Stok Barang</h2>
             <p class="text-xs text-slate-500 font-medium mt-0.5">
@@ -121,6 +121,12 @@
                 </div>
                 
                 <div class="flex items-center gap-3 w-full md:w-auto">
+                    <button @click="openScanModal()" type="button"
+                        class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-lg text-sm font-semibold shadow-sm hover:shadow transition-all hover:-translate-y-0.5">
+                        <i data-lucide="scan-eye" class="w-4 h-4"></i>
+                        <span>Scan Faktur (AI)</span>
+                        <span class="bg-white/20 text-[10px] px-1.5 py-0.5 rounded font-bold">BARU</span>
+                    </button>
                     <button type="button" class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
                         <i data-lucide="download" class="w-4 h-4"></i>
                         Export
@@ -270,21 +276,13 @@
         {{-- ======================================== --}}
         <div class="p-5 space-y-5">
 
-            {{-- Header with AI Scanner Button --}}
+            {{-- Header --}}
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="font-bold text-slate-900 text-lg tracking-tight">Catat Stok Masuk</h3>
                     <p class="text-xs text-slate-500 font-medium mt-0.5">Input pergerakan barang masuk dari supplier secara ringkas.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    {{-- AI Scan Faktur Button --}}
-                    <button @click="openScanModal()" type="button"
-                        class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center gap-2.5 shadow-lg shadow-violet-200 transition-all hover:shadow-xl hover:shadow-violet-300 hover:-translate-y-0.5">
-                        <i data-lucide="scan-eye" class="w-4 h-4"></i>
-                        <span>Scan Faktur (AI)</span>
-                        <span class="bg-white/20 text-[10px] px-1.5 py-0.5 rounded font-bold">BARU</span>
-                    </button>
-
                     <div class="bg-emerald-50 border border-emerald-200 p-1 rounded-xl flex items-center gap-1 text-xs font-semibold text-emerald-800">
                         <div class="px-4 py-2 rounded-lg flex items-center gap-2 bg-white shadow-xs">
                             <i data-lucide="arrow-down-left" class="w-4 h-4 text-emerald-600"></i>
@@ -1095,6 +1093,7 @@
     {{-- Hidden form for batch submission --}}
     <form id="batchForm" method="POST" action="{{ route('stok.batch-store') }}" class="hidden">
         @csrf
+        <input type="hidden" name="redirect_to" value="products.index">
         <input type="hidden" name="supplier_name" :value="scanResult.supplier_name">
         <input type="hidden" name="invoice_number" :value="scanResult.invoice_number">
         <template x-for="(item, index) in matchedItems" :key="index">

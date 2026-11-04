@@ -71,7 +71,9 @@ class StockMovementController extends Controller
         }
         $product->save();
 
-        $validated['user_name'] = 'Budi Santoso';
+        $validated['user_name'] = \Illuminate\Support\Facades\Auth::check() 
+            ? \Illuminate\Support\Facades\Auth::user()->name 
+            : \App\Models\Setting::get('cashier_name', 'Petugas Toko');
 
         StockMovement::create($validated);
 
@@ -175,7 +177,9 @@ class StockMovementController extends Controller
                     'unit' => $item['unit'],
                     'source_category' => 'Supplier: ' . $supplierName,
                     'notes' => $notes ?: null,
-                    'user_name' => 'Budi Santoso',
+                    'user_name' => \Illuminate\Support\Facades\Auth::check() 
+                        ? \Illuminate\Support\Facades\Auth::user()->name 
+                        : \App\Models\Setting::get('cashier_name', 'Petugas Toko'),
                 ]);
 
                 $savedCount++;
@@ -183,13 +187,19 @@ class StockMovementController extends Controller
 
             DB::commit();
 
-            return redirect()->route('stok.index')->with('success',
+            $redirectRoute = $request->input('redirect_to', 'products.index');
+            $target = \Illuminate\Support\Facades\Route::has($redirectRoute) ? $redirectRoute : 'products.index';
+
+            return redirect()->route($target)->with('success',
                 "✅ Faktur berhasil diproses! {$savedCount} barang dari {$supplierName} telah ditambahkan ke stok."
             );
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->route('stok.index')->with('error',
+            $redirectRoute = $request->input('redirect_to', 'products.index');
+            $target = \Illuminate\Support\Facades\Route::has($redirectRoute) ? $redirectRoute : 'products.index';
+
+            return redirect()->route($target)->with('error',
                 'Gagal menyimpan data faktur: ' . $e->getMessage()
             );
         }

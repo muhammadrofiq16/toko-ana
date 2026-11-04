@@ -25,7 +25,7 @@
                     </div>
                     <div class="text-sm">
                         <p class="font-medium text-white">{{ Auth::user()->name ?? 'Kasir' }}</p>
-                        <p class="text-xs text-brand-200">Role: Kasir</p>
+                        <p class="text-xs text-brand-200">Role: {{ ucfirst(Auth::user()->role ?? 'kasir') }}</p>
                     </div>
                 </div>
             </div>

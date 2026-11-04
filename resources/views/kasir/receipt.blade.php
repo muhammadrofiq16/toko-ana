@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Struk #{{ $transaction->invoice_number }} - SIKOL</title>
+    <title>Struk #{{ $transaction->invoice_number }} - {{ $appSettings['store_name'] ?? 'Toko' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -29,10 +29,12 @@
             <i data-lucide="printer" class="w-4 h-4"></i>
             <span>Cetak Struk</span>
         </button>
+        @if(auth()->user() && auth()->user()->isAdmin())
         <a href="{{ route('transaksi.index') }}" class="bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm px-5 py-2.5 rounded-xl flex items-center gap-2 shadow border border-slate-200 transition-all">
             <i data-lucide="receipt" class="w-4 h-4 text-brand-600"></i>
             <span>Riwayat Transaksi</span>
         </a>
+        @endif
         <a href="{{ route('kasir.index') }}" class="bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm px-5 py-2.5 rounded-xl flex items-center gap-2 shadow border border-slate-200 transition-all">
             <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
             <span>Transaksi Baru</span>
@@ -43,9 +45,9 @@
     <div class="receipt-container bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm p-6 space-y-4">
         <!-- Store Header -->
         <div class="text-center border-b border-dashed border-slate-300 pb-4">
-            <h1 class="text-xl font-black text-slate-900 tracking-tight">TOKO BERKAH</h1>
-            <p class="text-[11px] text-slate-500 mt-1 font-medium">Jl. Contoh Alamat No. 123, Kota</p>
-            <p class="text-[11px] text-slate-500 font-medium">Telp: 021-12345678</p>
+            <h1 class="text-xl font-black text-slate-900 tracking-tight">{{ strtoupper($appSettings['store_name'] ?? 'TOKO BERKAH') }}</h1>
+            <p class="text-[11px] text-slate-500 mt-1 font-medium">{{ $appSettings['store_address'] ?? 'Jl. Contoh Alamat No. 123, Kota' }}</p>
+            <p class="text-[11px] text-slate-500 font-medium">Telp: {{ $appSettings['store_phone'] ?? '021-12345678' }}</p>
         </div>
 
         <!-- Transaction Info -->
@@ -133,7 +135,7 @@
         <div class="text-center border-t border-dashed border-slate-300 pt-4 space-y-1.5">
             <p class="text-xs font-bold text-slate-700">Terima Kasih!</p>
             <p class="text-[10px] text-slate-400">Barang yang sudah dibeli tidak dapat dikembalikan</p>
-            <p class="text-[10px] text-slate-400 font-semibold">SIKOL - Sistem Inventaris Kelontong</p>
+            <p class="text-[10px] text-slate-400 font-semibold">{{ $appSettings['store_name'] ?? 'Toko' }} - Terima Kasih atas Kunjungan Anda</p>
         </div>
     </div>
 

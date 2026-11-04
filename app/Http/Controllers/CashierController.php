@@ -105,7 +105,7 @@ class CashierController extends Controller
                 // Calculate total & build items
                 $totalAmount   = 0;
                 $itemsToCreate = [];
-                $cashierName   = Auth::check() ? Auth::user()->name : 'Budi Santoso';
+                $cashierName   = Auth::check() ? Auth::user()->name : \App\Models\Setting::get('cashier_name', 'Budi Santoso');
 
                 foreach ($cartItems as $item) {
                     $product = Product::find($item['product_id']);
