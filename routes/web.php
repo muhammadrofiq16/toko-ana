@@ -55,4 +55,5 @@ Route::get('/transaksi/{transaction}', [TransactionController::class, 'show'])->
 // Laporan & Pengaturan Routes
 Route::get('/laporan', [ReportController::class, 'index'])->name('laporan.index');
 Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');
+Route::put('/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
 
