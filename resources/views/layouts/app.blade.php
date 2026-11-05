@@ -241,8 +241,6 @@
                             </div>
                         </div>
                     </div>
-                        </div>
-                    </div>
                     <form action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" title="Keluar / Ganti Shift" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors shrink-0">
