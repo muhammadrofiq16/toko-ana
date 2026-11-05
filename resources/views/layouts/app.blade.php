@@ -170,29 +170,66 @@
                         <span>Dashboard</span>
                     </a>
 
-                    <!-- Catat Stok Masuk (Accessible by Kasir & Admin - Now in DATA & KELOLA) -->
+                    @if(auth()->user() && auth()->user()->isAdmin())
+                    <!-- Inventaris & Stok (Admin: Menu Gabungan Master Barang & Catat Stok) -->
+                    @php
+                        $lowStockCount = \App\Models\Product::where(function($q) { $q->whereRaw('stock <= min_stock'); })->count();
+                        $nearExpiryCount = \App\Models\Product::whereNotNull('expiry_date')->where('expiry_date', '<=', \Carbon\Carbon::now()->addDays(30))->count();
+                        $alertTotal = $lowStockCount + $nearExpiryCount;
+                        $isBarangOrStokActive = request()->routeIs('products.*') || request()->routeIs('stok.*');
+                        $isMasterActive = request()->routeIs('products.*') && request('tab', 'data-barang') !== 'stok-masuk';
+                        $isStokActive = request()->routeIs('stok.*') || (request()->routeIs('products.*') && request('tab') === 'stok-masuk');
+                    @endphp
+                    <div x-data="{ openBarangMenu: {{ $isBarangOrStokActive ? 'true' : 'false' }} }" class="space-y-0.5">
+                        <button type="button" 
+                                @click="openBarangMenu = !openBarangMenu"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ $isBarangOrStokActive ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <div class="flex items-center gap-2.5">
+                                <i data-lucide="boxes" class="w-4.5 h-4.5 {{ $isBarangOrStokActive ? 'text-brand-700' : 'text-slate-400' }}"></i>
+                                <span>Inventaris & Stok</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                @if($alertTotal > 0)
+                                <span class="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">{{ $alertTotal }}</span>
+                                @endif
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200" :class="openBarangMenu ? 'rotate-180' : ''"></i>
+                            </div>
+                        </button>
+                        
+                        <!-- Submenu Items -->
+                        <div x-show="openBarangMenu" x-transition.origin.top class="pl-4 pr-1 py-1 space-y-1">
+                            <!-- 1. Master Data Barang -->
+                            <a href="{{ route('products.index', ['tab' => 'data-barang']) }}" 
+                               class="flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ $isMasterActive ? 'bg-brand-50 text-brand-800 font-bold border-l-2 border-brand-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="package-search" class="w-3.5 h-3.5 {{ $isMasterActive ? 'text-brand-700' : 'text-slate-400' }}"></i>
+                                    <span>Master Data Barang</span>
+                                </div>
+                                @if($alertTotal > 0)
+                                <span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $alertTotal }}</span>
+                                @endif
+                            </a>
+
+                            <!-- 2. Catat Stok Masuk -->
+                            <a href="{{ route('stok.index') }}" 
+                               class="flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all {{ $isStokActive ? 'bg-brand-50 text-brand-800 font-bold border-l-2 border-brand-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="package-plus" class="w-3.5 h-3.5 {{ $isStokActive ? 'text-brand-700' : 'text-slate-400' }}"></i>
+                                    <span>Catat Stok Masuk</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    @else
+                    <!-- Catat Stok Masuk (Kasir Only: Single Menu) -->
                     <a href="{{ route('stok.index') }}" 
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('stok.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                         <i data-lucide="package-plus" class="w-4.5 h-4.5 {{ request()->routeIs('stok.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
                         <span>Catat Stok Masuk</span>
                     </a>
+                    @endif
 
                     @if(auth()->user() && auth()->user()->isAdmin())
-                    <!-- Master Stok Barang (Admin Only) -->
-                    <a href="{{ route('products.index') }}" 
-                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('products.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                        <i data-lucide="package-search" class="w-4.5 h-4.5 {{ request()->routeIs('products.*') ? 'text-brand-700' : 'text-slate-400' }}"></i>
-                        <span>Master Data Barang</span>
-                        @php
-                            $lowStockCount = \App\Models\Product::where(function($q) { $q->whereRaw('stock <= min_stock'); })->count();
-                            $nearExpiryCount = \App\Models\Product::whereNotNull('expiry_date')->where('expiry_date', '<=', \Carbon\Carbon::now()->addDays(30))->count();
-                            $alertTotal = $lowStockCount + $nearExpiryCount;
-                        @endphp
-                        @if($alertTotal > 0)
-                        <span class="ml-auto bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center">{{ $alertTotal }}</span>
-                        @endif
-                    </a>
-
                     <!-- Manajemen Akun (Admin Only) -->
                     <a href="{{ route('pengguna.index') }}" 
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-all {{ request()->routeIs('pengguna.*') ? 'bg-brand-100/70 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">

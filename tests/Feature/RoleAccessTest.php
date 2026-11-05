@@ -148,6 +148,37 @@ class RoleAccessTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_sidebar_unified_menu_for_admin_and_kasir(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin Toko',
+            'email' => 'admin_sidebar@toko.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        $kasir = User::create([
+            'name' => 'Kasir Toko',
+            'email' => 'kasir_sidebar@toko.com',
+            'password' => bcrypt('password'),
+            'role' => 'kasir',
+        ]);
+
+        // Admin sees unified "Inventaris & Stok" menu with both submenus
+        $responseAdmin = $this->actingAs($admin)->get('/dashboard');
+        $responseAdmin->assertStatus(200);
+        $responseAdmin->assertSee('Inventaris & Stok', false);
+        $responseAdmin->assertSee('Master Data Barang');
+        $responseAdmin->assertSee('Catat Stok Masuk');
+
+        // Kasir only sees "Catat Stok Masuk", does NOT see "Inventaris & Stok" dropdown or "Master Data Barang"
+        $responseKasir = $this->actingAs($kasir)->get('/stok');
+        $responseKasir->assertStatus(200);
+        $responseKasir->assertSee('Catat Stok Masuk');
+        $responseKasir->assertDontSee('Inventaris & Stok', false);
+        $responseKasir->assertDontSee('Master Data Barang');
+    }
+
     public function test_logout_redirects_to_login(): void
     {
         $user = User::create([

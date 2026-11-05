@@ -42,6 +42,24 @@
         </div>
     </div>
 
+    @if(auth()->user() && auth()->user()->isAdmin())
+    <!-- Tab Navigation (Admin: Beralih Antara Data Inventaris & Catat Stok) -->
+    <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+        <div class="flex items-center border-b border-slate-200/80 px-5 pt-1">
+            <a href="{{ route('products.index', ['tab' => 'data-barang']) }}" 
+               class="px-4 py-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                <span>Master Data Barang</span>
+            </a>
+            <a href="{{ route('stok.index') }}" 
+               class="px-4 py-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2 border-brand-600 text-brand-800">
+                <i data-lucide="package-plus" class="w-4 h-4"></i>
+                <span>Catat Stok Masuk</span>
+            </a>
+        </div>
+    </div>
+    @endif
+
     <!-- Form Input Box Card (Manual - existing) -->
     <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
         <form action="{{ route('stok.store') }}" method="POST">

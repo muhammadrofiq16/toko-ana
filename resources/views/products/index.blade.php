@@ -87,8 +87,8 @@
                 <span>Data Inventaris</span>
                 <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold {{ $tab == 'data-barang' ? 'bg-brand-100 text-brand-800' : 'bg-slate-100 text-slate-500' }}">{{ $totalCount }}</span>
             </a>
-            <a href="{{ route('products.index', ['tab' => 'stok-masuk']) }}" 
-               class="px-4 py-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2 {{ $tab == 'stok-masuk' ? 'border-brand-600 text-brand-800' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300' }}">
+            <a href="{{ route('stok.index') }}" 
+               class="px-4 py-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2 {{ request()->routeIs('stok.*') || (request()->routeIs('products.*') && request('tab') == 'stok-masuk') ? 'border-brand-600 text-brand-800' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300' }}">
                 <i data-lucide="package-plus" class="w-4 h-4"></i>
                 <span>Catat Stok Masuk</span>
             </a>
