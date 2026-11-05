@@ -23,6 +23,10 @@ foreach ($tmpDirs as $dir) {
 // Redirect cache bootstrap ke /tmp (karena /var/task/bootstrap/cache di Vercel itu read-only)
 $envMappings = [
     'VERCEL'             => '1',
+    'APP_DEBUG'          => 'true',
+    'SESSION_DRIVER'     => 'cookie',
+    'CACHE_DRIVER'       => 'array',
+    'LOG_CHANNEL'        => 'stderr',
     'VIEW_COMPILED_PATH' => '/tmp/views',
     'APP_SERVICES_CACHE' => '/tmp/bootstrap/cache/services.php',
     'APP_PACKAGES_CACHE' => '/tmp/bootstrap/cache/packages.php',
