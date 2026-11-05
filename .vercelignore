@@ -1,0 +1,12 @@
+.env
+.env.backup
+.env.production
+.git
+.github
+tests
+phpunit.xml
+*.drawio
+*.txt
+*.php~
+scratch
+node_modules
