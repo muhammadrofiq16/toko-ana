@@ -53,7 +53,7 @@
                 <i data-lucide="store" class="w-8 h-8"></i>
             </div>
             <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">{{ strtoupper($appSettings['store_name'] ?? 'SIKOL POS') }}</h1>
-            <p class="text-xs text-slate-500 font-medium mt-1">Sistem Informasi Kasir & Inventaris Toko</p>
+            <p class="text-xs text-slate-500 font-medium mt-1">SIKOL POS &bull; Sistem Informasi Kasir & Inventaris Toko</p>
         </div>
 
         <!-- Main Login Card -->

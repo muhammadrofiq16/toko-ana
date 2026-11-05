@@ -35,8 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Dashboard (Dapat diakses Kasir & Admin, isi data difilter otomatis sesuai role)
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index']);
 
     // Kasir POS Routes (Kasir & Admin)
     Route::get('/kasir', [CashierController::class, 'index'])->name('kasir.index');
@@ -83,7 +83,7 @@ Route::middleware('auth')->group(function () {
 
         // Pengaturan Sistem & Toko
         Route::get('/pengaturan', [SettingController::class, 'index'])->name('pengaturan.index');
-        Route::post('/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
+        Route::match(['post', 'put'], '/pengaturan', [SettingController::class, 'update'])->name('pengaturan.update');
 
         // Manajemen Akun Pengguna (CRUD & Ubah Role)
         Route::resource('pengguna', UserController::class)->parameters([

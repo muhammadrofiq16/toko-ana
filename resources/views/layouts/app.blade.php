@@ -10,6 +10,9 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['"Atkinson Hyperlegible Next"', 'sans-serif'],
+                    },
                     colors: {
                         brand: {
                             50: '#f0fdf4',
@@ -31,11 +34,71 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Atkinson Hyperlegible Next', sans-serif;
             background-color: #f8fafc;
+            font-size: 16px; /* Base: 1rem = 16px */
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        /* ===== Tipografi — Atkinson Hyperlegible Next ===== */
+
+        /* H1 — Judul Utama / Hero Banner: 2rem–3rem, Bold 700 / Extra Bold 800 */
+        h1 {
+            font-size: 2.5rem;   /* 40px */
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        /* H2 — Judul Sekunder / Section Title: 1.5rem–2rem, Bold 700 / Semi Bold 600 */
+        h2 {
+            font-size: 1.75rem;  /* 28px */
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        /* H3 — Sub-Judul: 1.25rem–1.5rem, Semi Bold 600 / Medium 500 */
+        h3 {
+            font-size: 1.25rem;  /* 20px */
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* H4, H5, H6 — Judul Kecil: 1rem–1.125rem, Medium 500 / Semi Bold 600 */
+        h4, h5, h6 {
+            font-size: 1.0rem;   /* 16px */
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* Body Text / Teks Utama: 1rem (16px), Regular 400 */
+        p, span, div, td, th, li, a, label, button, input, select, textarea {
+            font-family: 'Atkinson Hyperlegible Next', sans-serif;
+        }
+
+        /* Teks Pendukung / Sub-text: 0.875rem (14px), Regular 400 */
+        small, .text-sm {
+            font-size: 0.875rem;
+        }
+
+        /* Teks Kecil / Caption / Badge: 0.75rem–0.8125rem (12px–13px), Regular 400 / Medium 500 */
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        /* Hilangkan panah spinner atas-bawah pada input number */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
         }
     </style>
 </head>
@@ -176,6 +239,8 @@
                                     {{ Auth::user() && Auth::user()->isAdmin() ? 'Admin Toko' : 'Kasir POS' }}
                                 </p>
                             </div>
+                        </div>
+                    </div>
                         </div>
                     </div>
                     <form action="{{ route('logout') }}" method="POST" class="inline">

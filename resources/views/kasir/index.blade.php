@@ -146,12 +146,29 @@
                                 <!-- Qty & Subtotal -->
                                 <div class="flex justify-between items-center mt-3 pt-2 border-t border-brand-100/60">
                                     <div class="flex items-center bg-brand-50 rounded-lg border border-brand-200 p-0.5">
-                                        <button @click="updateQty(index, item.quantity - 1)" class="w-7 h-7 flex items-center justify-center text-brand-600 hover:bg-white hover:text-brand-700 hover:shadow-sm rounded transition-all disabled:opacity-50" :disabled="item.quantity <= 1">
-                                            <i data-lucide="minus" class="w-3 h-3"></i>
+                                        <button type="button" 
+                                                @click="updateQty(index, item.quantity - 1)" 
+                                                class="w-7 h-7 flex items-center justify-center rounded transition-all"
+                                                :class="item.quantity === 1 ? 'text-red-500 hover:bg-red-100 hover:text-red-700' : 'text-brand-600 hover:bg-white hover:text-brand-700 hover:shadow-sm'"
+                                                :title="item.quantity === 1 ? 'Batal / Hapus pesanan barang ini' : 'Kurangi 1'">
+                                            <template x-if="item.quantity === 1">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                            </template>
+                                            <template x-if="item.quantity > 1">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                            </template>
                                         </button>
-                                        <input type="number" x-model.number="item.quantity" @change="updateQty(index, $event.target.value)" class="w-10 text-center bg-transparent border-none text-sm font-semibold text-slate-800 focus:ring-0 p-0 appearance-none m-0" min="1">
-                                        <button @click="updateQty(index, item.quantity + 1)" class="w-7 h-7 flex items-center justify-center text-brand-600 hover:bg-white hover:text-brand-700 hover:shadow-sm rounded transition-all">
-                                            <i data-lucide="plus" class="w-3 h-3"></i>
+                                        <input type="number" 
+                                               x-model.number="item.quantity" 
+                                               @input="if($event.target.value === '0' || $event.target.value === '') updateQty(index, 0)" 
+                                               @change="updateQty(index, $event.target.value)" 
+                                               class="w-10 text-center bg-transparent border-none text-sm font-bold text-slate-800 focus:ring-0 p-0 appearance-none m-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                                               min="0">
+                                        <button type="button" 
+                                                @click="updateQty(index, item.quantity + 1)" 
+                                                class="w-7 h-7 flex items-center justify-center text-brand-600 hover:bg-white hover:text-brand-700 hover:shadow-sm rounded transition-all"
+                                                title="Tambah 1">
+                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                         </button>
                                     </div>
                                     <div class="font-bold text-brand-800 text-sm" x-text="formatRupiah(getItemSubtotal(item))"></div>
@@ -452,6 +469,9 @@
             
             removeFromCart(index) {
                 this.cart.splice(index, 1);
+                if (this.cart.length === 0) {
+                    this.paidAmount = 0;
+                }
             },
             
             changeUnit(cartIndex, unitObj) {
@@ -461,8 +481,9 @@
             
             updateQty(index, qty) {
                 let parsedQty = parseInt(qty);
-                if (isNaN(parsedQty) || parsedQty < 1) {
-                    this.cart[index].quantity = 1;
+                // Jika 0 atau kurang (atau kosong/NaN), otomatis pesanan barang batal (dihapus dari keranjang)
+                if (isNaN(parsedQty) || parsedQty <= 0) {
+                    this.removeFromCart(index);
                     return;
                 }
                 this.cart[index].quantity = parsedQty;

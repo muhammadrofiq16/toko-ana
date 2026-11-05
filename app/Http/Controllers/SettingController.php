@@ -40,6 +40,11 @@ class SettingController extends Controller
             Setting::set($key, $value ?? '');
         }
 
+        // Synchronize 'shift' key for backward compatibility
+        if (isset($validated['work_shift'])) {
+            Setting::set('shift', $validated['work_shift']);
+        }
+
         return redirect()->route('pengaturan.index')->with('success', 'Pengaturan toko berhasil diperbarui!');
     }
 }
