@@ -22,6 +22,7 @@
             <a href="?period=today" class="px-3 py-1.5 rounded-lg {{ $timeFilter == 'today' ? 'bg-white text-brand-800 shadow-xs border border-brand-200/60' : 'hover:text-brand-800' }}">Hari Ini</a>
             <a href="?period=week" class="px-3 py-1.5 rounded-lg {{ $timeFilter == 'week' ? 'bg-white text-brand-800 shadow-xs border border-brand-200/60' : 'hover:text-brand-800' }}">Pekan Ini</a>
             <a href="?period=month" class="px-3 py-1.5 rounded-lg {{ $timeFilter == 'month' ? 'bg-white text-brand-800 shadow-xs border border-brand-200/60' : 'hover:text-brand-800' }}">Bulan Ini</a>
+            <a href="?period=all" class="px-3 py-1.5 rounded-lg {{ $timeFilter == 'all' ? 'bg-white text-brand-800 shadow-xs border border-brand-200/60' : 'hover:text-brand-800' }}">Semua</a>
         </div>
     </div>
 
@@ -33,19 +34,29 @@
             <div class="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-8 -translate-x-8"></div>
             <div class="relative">
                 <div class="flex items-start justify-between">
-                    <span class="text-xs font-semibold text-brand-100">Omzet Penjualan</span>
+                    <div>
+                        <span class="text-xs font-semibold text-brand-100">Omzet Penjualan</span>
+                        <p class="text-[10px] text-brand-200 capitalize mt-0.5">Periode {{ $periodLabel ?? 'Hari Ini' }}</p>
+                    </div>
                     <div class="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
                         <i data-lucide="trending-up" class="w-4 h-4 text-white"></i>
                     </div>
                 </div>
                 <div class="mt-4">
                     <div class="flex items-baseline gap-1.5">
-                        <span class="text-3xl font-black tracking-tight">Rp {{ number_format($todaySalesValue, 0, ',', '.') }}</span>
+                        <span class="text-3xl font-black tracking-tight">Rp {{ number_format($salesValue ?? $todaySalesValue, 0, ',', '.') }}</span>
                     </div>
-                    <div class="mt-2 flex items-center gap-1.5 text-xs font-medium text-brand-100">
-                        <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
-                        <span class="font-bold text-white">{{ $todayTransactionsCount }}</span>
-                        <span>transaksi tercatat</span>
+                    <div class="mt-2 flex items-center justify-between text-xs font-medium text-brand-100">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                            <span class="font-bold text-white">{{ $transactionsCount ?? $todayTransactionsCount }}</span>
+                            <span>transaksi ({{ strtolower($periodLabel ?? 'hari ini') }})</span>
+                        </div>
+                        @if(auth()->user() && auth()->user()->isAdmin() && isset($expenseValue) && $expenseValue > 0)
+                        <div class="text-[10px] bg-white/15 px-2 py-0.5 rounded font-medium text-white/90" title="Total Pembelian Suplier">
+                            Beli: Rp {{ number_format($expenseValue, 0, ',', '.') }}
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
