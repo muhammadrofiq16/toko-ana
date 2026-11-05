@@ -27,8 +27,7 @@ class RoleAccessTest extends TestCase
         $response = $this->get('/login');
         $response->assertStatus(200);
         $response->assertSee('SIKOL POS');
-        $response->assertSee('admin@toko.com');
-        $response->assertSee('kasir@toko.com');
+        $response->assertSee('Masuk ke Sistem');
     }
 
     public function test_kasir_login_and_redirection(): void

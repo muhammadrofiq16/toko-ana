@@ -150,34 +150,6 @@
                 </button>
             </form>
 
-            <!-- Quick Demo Credentials Box -->
-            <div class="pt-4 border-t border-slate-100">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-2.5">
-                    Pilihan Akun Demo (Klik untuk Isi Cepat)
-                </p>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" 
-                            @click="fillCredentials('admin@toko.com', 'password')"
-                            class="p-2.5 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 rounded-xl text-left transition-all group">
-                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 group-hover:text-brand-800">
-                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-600"></i>
-                            <span>Admin Toko</span>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">admin@toko.com</p>
-                    </button>
-
-                    <button type="button" 
-                            @click="fillCredentials('kasir@toko.com', 'password')"
-                            class="p-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-left transition-all group">
-                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 group-hover:text-emerald-800">
-                            <i data-lucide="monitor" class="w-3.5 h-3.5 text-emerald-600"></i>
-                            <span>Kasir POS</span>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">kasir@toko.com</p>
-                    </button>
-                </div>
-            </div>
-
         </div>
 
         <!-- Footer Notice -->
@@ -196,14 +168,7 @@
             return {
                 email: '{{ old('email') }}',
                 password: '',
-                showPassword: false,
-                fillCredentials(email, pass) {
-                    this.email = email;
-                    this.password = pass;
-                    this.$nextTick(() => {
-                        lucide.createIcons();
-                    });
-                }
+                showPassword: false
             }
         }
     </script>
