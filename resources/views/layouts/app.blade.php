@@ -435,10 +435,11 @@
         </div>
     </div>
 
-    <!-- Initialize Lucide Icons -->
+    <!-- Initialize Lucide Icons & Barcode Audio -->
     <script>
         lucide.createIcons();
     </script>
+    <script src="{{ asset('js/barcode-audio.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

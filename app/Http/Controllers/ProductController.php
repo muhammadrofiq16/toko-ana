@@ -245,4 +245,28 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Barang berhasil dihapus.');
     }
+
+    /**
+     * Cari barang berdasarkan barcode atau SKU untuk barcode scanner.
+     */
+    public function findByBarcode(string $code)
+    {
+        $code = trim($code);
+        $product = Product::with(['units.priceTier'])
+            ->where('barcode', $code)
+            ->orWhere('sku', $code)
+            ->first();
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => "Barang dengan barcode/SKU '{$code}' tidak ditemukan.",
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $product,
+        ]);
+    }
 }

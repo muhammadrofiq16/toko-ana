@@ -53,20 +53,33 @@
                 <div class="md:col-span-6">
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="text-xs font-bold text-slate-700">Pilih Nama Barang / Barcode</label>
-                        <span class="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Tekan F2 utk scan</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md" title="Tembak barcode langsung menggunakan Barcode Gun">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Barcode Gun Aktif
+                            </span>
+                            <button type="button" @click="openStokScanner()" class="text-[10px] font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition-all" title="Scan Barcode via Kamera HP/Webcam (F2)">
+                                <i data-lucide="scan-barcode" class="w-3 h-3 text-brand-600"></i>
+                                Scan Kamera (F2)
+                            </button>
+                        </div>
                     </div>
                     <div class="relative">
                         <i data-lucide="scan-barcode" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                        <select name="product_id" required 
+                        <select id="stokProductIdSelect" name="product_id" x-model="selectedProductId" required 
                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-10 py-2.5 text-sm text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 appearance-none">
-                            <option value="" disabled selected>Cari nama atau barcode barang...</option>
+                            <option value="" disabled>Cari nama atau scan barcode barang...</option>
                             @foreach($allProducts as $p)
                                 <option value="{{ $p->id }}" {{ $loop->first ? 'selected' : '' }}>
-                                    {{ $p->name }} (SKU: {{ $p->sku }}) - Stok: {{ $p->stock }} {{ $p->unit }}
+                                    {{ $p->name }} (SKU: {{ $p->sku }}{{ $p->barcode ? ' • Barcode: '.$p->barcode : '' }}) - Stok: {{ $p->stock }} {{ $p->unit }}
                                 </option>
                             @endforeach
                         </select>
                         <i data-lucide="scan" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2"></i>
+                    </div>
+                    <div x-show="scannedProductName" x-transition class="mt-2 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
+                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i>
+                        <span x-text="scannedProductName"></span>
                     </div>
                 </div>
 
@@ -77,7 +90,7 @@
                         <button type="button" @click="if(quantity > 1) quantity--" class="w-9 h-8 rounded-lg bg-white shadow-xs border border-slate-200 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-100">
                             -
                         </button>
-                        <input type="number" name="quantity" x-model="quantity" min="1" required 
+                        <input type="number" id="stokQuantityInput" name="quantity" x-model="quantity" min="1" required 
                                class="w-full text-center bg-transparent border-none text-sm font-bold text-slate-900 focus:outline-none">
                         <button type="button" @click="quantity++" class="w-9 h-8 rounded-lg bg-white shadow-xs border border-slate-200 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-100">
                             +
@@ -88,7 +101,7 @@
                 <!-- Unit Selection -->
                 <div class="md:col-span-3">
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Satuan Unit</label>
-                    <select name="unit" required 
+                    <select id="stokUnitSelect" name="unit" required 
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                         <option value="Dus (Karton)" selected>Dus (Karton)</option>
                         <option value="Pouch">Pouch</option>
@@ -522,6 +535,55 @@
     </template>
 
     {{-- Hidden form for batch submission --}}
+    {{-- ================================================================== --}}
+    {{-- BARCODE CAMERA SCANNER MODAL (Stok Masuk)                          --}}
+    {{-- ================================================================== --}}
+    <template x-teleport="body">
+        <div x-show="barcodeModalOpen" 
+             x-cloak
+             x-transition:enter="transition ease-out duration-300" 
+             x-transition:enter-start="opacity-0" 
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" 
+             x-transition:leave-start="opacity-100" 
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+            
+            <div @click.away="closeStokScanner()" 
+                 class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden flex flex-col">
+                
+                <!-- Modal Header -->
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center">
+                            <i data-lucide="scan-barcode" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Scan Barcode Barang Masuk</h3>
+                            <p class="text-xs text-slate-500">Arahkan kamera ke barcode kemasan barang</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="closeStokScanner()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Camera Viewport Container -->
+                <div class="p-4 bg-slate-950 flex flex-col items-center justify-center relative min-h-[300px]">
+                    <div id="interactive-stok-scanner" class="w-full max-w-sm rounded-xl overflow-hidden shadow-inner"></div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Barang otomatis terpilih setelah scan</span>
+                    <button type="button" @click="closeStokScanner()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 rounded-xl transition-all">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
     <form id="batchForm" method="POST" action="{{ route('stok.batch-store') }}" class="hidden">
         @csrf
         <input type="hidden" name="supplier_name" :value="scanResult.supplier_name">
@@ -538,12 +600,61 @@
 
 </div>
 
-{{-- Alpine.js Invoice Scan App --}}
+{{-- Alpine.js Invoice Scan App & Barcode Scanner --}}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
 function invoiceScanApp() {
     return {
         // Manual form
+        products: @json($allProducts),
+        selectedProductId: '{{ $allProducts->first()->id ?? "" }}',
+        scannedProductName: '',
         quantity: 12,
+
+        // Barcode scanner state
+        barcodeModalOpen: false,
+        html5QrCodeStok: null,
+        barcodeBuffer: '',
+        lastCharTime: 0,
+        lastScanTime: 0,
+
+        init() {
+            // Global Barcode Scanner Gun & Shortcut F2
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    if (this.barcodeModalOpen) {
+                        this.closeStokScanner();
+                    } else {
+                        this.openStokScanner();
+                    }
+                    return;
+                }
+
+                const activeTag = document.activeElement ? document.activeElement.tagName : '';
+                const isInputFocused = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag);
+
+                const now = Date.now();
+                const isFastTyping = (now - this.lastCharTime) < 50;
+                this.lastCharTime = now;
+
+                if (e.key === 'Enter') {
+                    if (this.barcodeBuffer.length >= 3) {
+                        e.preventDefault();
+                        this.handleStokBarcode(this.barcodeBuffer.trim());
+                        this.barcodeBuffer = '';
+                        return;
+                    }
+                    this.barcodeBuffer = '';
+                } else if (e.key.length === 1) {
+                    if (isFastTyping || !isInputFocused) {
+                        this.barcodeBuffer += e.key;
+                    } else {
+                        this.barcodeBuffer = e.key;
+                    }
+                }
+            });
+        },
 
         // Scan modal state
         scanModalOpen: false,
@@ -573,6 +684,122 @@ function invoiceScanApp() {
         },
         get canSubmit() {
             return this.matchedCount > 0;
+        },
+
+        // Barcode methods for Stok Masuk
+        handleStokBarcode(code) {
+            code = String(code).trim();
+            if (!code) return false;
+
+            const lowerCode = code.toLowerCase();
+            const product = this.products.find(p => 
+                (p.barcode && String(p.barcode).toLowerCase() === lowerCode) ||
+                (p.sku && String(p.sku).toLowerCase() === lowerCode)
+            );
+
+            if (product) {
+                this.applyScannedProduct(product);
+                return true;
+            }
+
+            // Fallback server lookup
+            fetch(`/barang/barcode/${encodeURIComponent(code)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const p = data.data;
+                        if (!this.products.find(item => item.id === p.id)) {
+                            this.products.push(p);
+                        }
+                        this.applyScannedProduct(p);
+                    } else {
+                        window.barcodeFeedback?.playError();
+                        window.barcodeFeedback?.showToast(`Barcode '${code}' tidak ditemukan di katalog barang!`, 'error');
+                    }
+                })
+                .catch(() => {
+                    window.barcodeFeedback?.playError();
+                    window.barcodeFeedback?.showToast(`Barcode '${code}' tidak ditemukan!`, 'error');
+                });
+
+            return false;
+        },
+
+        applyScannedProduct(product) {
+            this.selectedProductId = String(product.id);
+            const sel = document.getElementById('stokProductIdSelect');
+            if (sel) sel.value = product.id;
+
+            if (product.unit) {
+                const unitSelect = document.getElementById('stokUnitSelect');
+                if (unitSelect) {
+                    for (let opt of unitSelect.options) {
+                        if (opt.value.toLowerCase().includes(product.unit.toLowerCase())) {
+                            unitSelect.value = opt.value;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            this.scannedProductName = `✓ Terpilih: ${product.name} (Stok: ${product.stock} ${product.unit || 'Unit'})`;
+            window.barcodeFeedback?.playSuccess();
+            window.barcodeFeedback?.showToast(`✓ Barang terpilih: ${product.name}`, 'success');
+
+            this.$nextTick(() => {
+                const qtyInput = document.getElementById('stokQuantityInput');
+                if (qtyInput) {
+                    qtyInput.focus();
+                    qtyInput.select();
+                }
+            });
+        },
+
+        openStokScanner() {
+            this.barcodeModalOpen = true;
+            this.$nextTick(() => {
+                if (typeof Html5Qrcode === 'undefined') {
+                    alert('Library pemindai kamera sedang dimuat, silakan coba sesaat lagi.');
+                    return;
+                }
+                try {
+                    if (this.html5QrCodeStok) {
+                        this.html5QrCodeStok.stop().catch(() => {});
+                    }
+                    this.html5QrCodeStok = new Html5Qrcode("interactive-stok-scanner");
+                    const config = { fps: 10, qrbox: { width: 250, height: 160 } };
+
+                    this.html5QrCodeStok.start(
+                        { facingMode: "environment" },
+                        config,
+                        (decodedText) => {
+                            const now = Date.now();
+                            if (now - this.lastScanTime > 1500) {
+                                this.lastScanTime = now;
+                                this.handleStokBarcode(decodedText);
+                                this.closeStokScanner();
+                            }
+                        },
+                        (errorMessage) => {}
+                    ).catch(err => {
+                        console.warn("Camera start error:", err);
+                    });
+                } catch (e) {
+                    console.error("Scanner init error:", e);
+                }
+            });
+        },
+
+        closeStokScanner() {
+            if (this.html5QrCodeStok) {
+                this.html5QrCodeStok.stop().then(() => {
+                    this.html5QrCodeStok.clear();
+                    this.html5QrCodeStok = null;
+                }).catch(() => {
+                    this.html5QrCodeStok = null;
+                });
+            }
+            this.barcodeModalOpen = false;
         },
 
         // Modal controls

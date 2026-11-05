@@ -270,12 +270,23 @@
             <div class="lg:col-span-7 flex flex-col gap-3 order-1 lg:order-2">
                 
                 <!-- Search & Filter - Subtle white card -->
-                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-1">
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-2.5 items-center">
+                    <div class="relative flex-1 w-full">
                         <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" x-model="searchQuery" @input="filterProducts()" placeholder="Cari nama atau SKU produk..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm outline-none">
+                        <input type="text" x-model="searchQuery" @input="filterProducts()" @keydown.enter.prevent="handleSearchEnter()" placeholder="Cari nama, SKU, atau scan barcode..." class="w-full pl-10 pr-24 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm outline-none">
+                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Barcode Scanner Otomatis Aktif"></span>
+                            <span class="text-[10px] font-bold text-slate-400">SCAN (F2)</span>
+                        </div>
                     </div>
-                    <select x-model="selectedCategory" @change="filterProducts()" class="py-2 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm outline-none cursor-pointer">
+                    
+                    <!-- Button Buka Kamera Scanner -->
+                    <button type="button" @click="openCameraScanner()" title="Buka Kamera Barcode Scanner (F2)" class="w-full sm:w-auto bg-brand-50 hover:bg-brand-100 text-brand-800 font-bold text-xs px-3.5 py-2.5 rounded-lg border border-brand-200 flex items-center justify-center gap-1.5 transition-all shadow-2xs shrink-0">
+                        <i data-lucide="scan-barcode" class="w-4 h-4 text-brand-600"></i>
+                        <span>Scan Kamera</span>
+                    </button>
+
+                    <select x-model="selectedCategory" @change="filterProducts()" class="w-full sm:w-auto py-2.5 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm outline-none cursor-pointer">
                         <option value="">Semua Kategori</option>
                         @php
                             $categories = collect($products)->pluck('category')->unique()->filter();
@@ -324,10 +335,67 @@
             </div>
         </div>
     </div>
+
+    <!-- Barcode Camera Scanner Modal -->
+    <template x-teleport="body">
+        <div x-show="scannerModalOpen" 
+             x-cloak
+             x-transition:enter="transition ease-out duration-300" 
+             x-transition:enter-start="opacity-0" 
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" 
+             x-transition:leave-start="opacity-100" 
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+            
+            <div @click.away="closeCameraScanner()" 
+                 class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden flex flex-col">
+                
+                <!-- Modal Header -->
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center">
+                            <i data-lucide="scan-barcode" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Pemindai Barcode Produk</h3>
+                            <p class="text-xs text-slate-500">Arahkan kamera ke barcode produk belanjaan</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="closeCameraScanner()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Camera Viewport Container -->
+                <div class="p-4 bg-slate-950 flex flex-col items-center justify-center relative min-h-[300px]">
+                    <div id="interactive-kasir-scanner" class="w-full max-w-sm rounded-xl overflow-hidden shadow-inner"></div>
+                    
+                    <!-- Scan indicator info -->
+                    <div x-show="lastScannedItem" class="absolute bottom-4 left-4 right-4 bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-bold text-center shadow-lg flex items-center justify-center gap-2" x-transition>
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span x-text="lastScannedItem"></span>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-1.5 text-slate-500">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Mode Scan Berkelanjutan Aktif</span>
+                    </div>
+                    <button type="button" @click="closeCameraScanner()" class="px-4 py-2 bg-brand-dark hover:bg-brand-800 font-bold text-white rounded-xl transition-all shadow-xs">
+                        Selesai Scan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
 </div>
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('cashierApp', () => ({
@@ -349,6 +417,14 @@
             
             currentTime: '',
             isSubmitting: false,
+
+            // Barcode Scanner State
+            scannerModalOpen: false,
+            html5QrCode: null,
+            lastScannedItem: '',
+            lastScanTime: 0,
+            barcodeBuffer: '',
+            lastCharTime: 0,
             
             init() {
                 this.filteredProducts = this.products;
@@ -367,6 +443,42 @@
                         this.paidAmount = this.totalAmount;
                     } else if (val === 'tunai' && this.paidAmount < this.totalAmount) {
                         this.paidAmount = this.totalAmount;
+                    }
+                });
+
+                // Hardware Barcode Scanner Gun Listener & Shortcut F2
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'F2') {
+                        e.preventDefault();
+                        if (this.scannerModalOpen) {
+                            this.closeCameraScanner();
+                        } else {
+                            this.openCameraScanner();
+                        }
+                        return;
+                    }
+
+                    const activeTag = document.activeElement ? document.activeElement.tagName : '';
+                    const isInputFocused = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag);
+
+                    const now = Date.now();
+                    const isFastTyping = (now - this.lastCharTime) < 50;
+                    this.lastCharTime = now;
+
+                    if (e.key === 'Enter') {
+                        if (this.barcodeBuffer.length >= 3) {
+                            e.preventDefault();
+                            this.handleScannedBarcode(this.barcodeBuffer.trim());
+                            this.barcodeBuffer = '';
+                            return;
+                        }
+                        this.barcodeBuffer = '';
+                    } else if (e.key.length === 1) {
+                        if (isFastTyping || !isInputFocused) {
+                            this.barcodeBuffer += e.key;
+                        } else {
+                            this.barcodeBuffer = e.key;
+                        }
                     }
                 });
             },
@@ -394,6 +506,114 @@
                 }
                 
                 this.filteredProducts = result;
+            },
+
+            handleSearchEnter() {
+                if (this.searchQuery && this.searchQuery.trim().length >= 2) {
+                    const success = this.handleScannedBarcode(this.searchQuery.trim());
+                    if (success) {
+                        this.searchQuery = '';
+                        this.filterProducts();
+                    }
+                }
+            },
+
+            handleScannedBarcode(code) {
+                code = String(code).trim();
+                if (!code) return false;
+
+                const lowerCode = code.toLowerCase();
+                const product = this.products.find(p => 
+                    (p.barcode && String(p.barcode).toLowerCase() === lowerCode) ||
+                    (p.sku && String(p.sku).toLowerCase() === lowerCode)
+                );
+
+                if (product) {
+                    this.addToCart(product);
+                    window.barcodeFeedback?.playSuccess();
+                    this.lastScannedItem = `✓ ${product.name} (Masuk Keranjang)`;
+                    window.barcodeFeedback?.showToast(`✓ ${product.name} dimasukkan ke keranjang`, 'success');
+                    setTimeout(() => { 
+                        if (this.lastScannedItem.includes(product.name)) this.lastScannedItem = ''; 
+                    }, 3000);
+                    return true;
+                }
+
+                // Fallback to server search
+                fetch(`/barang/barcode/${encodeURIComponent(code)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            const p = data.data;
+                            if (!this.products.find(item => item.id === p.id)) {
+                                this.products.push(p);
+                            }
+                            this.addToCart(p);
+                            window.barcodeFeedback?.playSuccess();
+                            this.lastScannedItem = `✓ ${p.name} (Masuk Keranjang)`;
+                            window.barcodeFeedback?.showToast(`✓ ${p.name} dimasukkan ke keranjang`, 'success');
+                            setTimeout(() => { 
+                                if (this.lastScannedItem.includes(p.name)) this.lastScannedItem = ''; 
+                            }, 3000);
+                        } else {
+                            window.barcodeFeedback?.playError();
+                            window.barcodeFeedback?.showToast(`Barcode '${code}' tidak terdaftar!`, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        window.barcodeFeedback?.playError();
+                        window.barcodeFeedback?.showToast(`Barcode '${code}' tidak ditemukan!`, 'error');
+                    });
+
+                return false;
+            },
+
+            openCameraScanner() {
+                this.scannerModalOpen = true;
+                this.lastScannedItem = '';
+                this.$nextTick(() => {
+                    if (typeof Html5Qrcode === 'undefined') {
+                        alert('Library pemindai kamera sedang dimuat, silakan coba 2 detik lagi.');
+                        return;
+                    }
+                    try {
+                        if (this.html5QrCode) {
+                            this.html5QrCode.stop().catch(() => {});
+                        }
+                        this.html5QrCode = new Html5Qrcode("interactive-kasir-scanner");
+                        const config = { fps: 10, qrbox: { width: 250, height: 160 } };
+
+                        this.html5QrCode.start(
+                            { facingMode: "environment" },
+                            config,
+                            (decodedText) => {
+                                const now = Date.now();
+                                if (now - this.lastScanTime > 1500) {
+                                    this.lastScanTime = now;
+                                    this.handleScannedBarcode(decodedText);
+                                }
+                            },
+                            (errorMessage) => {}
+                        ).catch(err => {
+                            console.warn("Camera start error:", err);
+                        });
+                    } catch (e) {
+                        console.error("Scanner init error:", e);
+                    }
+                });
+            },
+
+            closeCameraScanner() {
+                if (this.html5QrCode) {
+                    this.html5QrCode.stop().then(() => {
+                        this.html5QrCode.clear();
+                        this.html5QrCode = null;
+                    }).catch(() => {
+                        this.html5QrCode = null;
+                    });
+                }
+                this.scannerModalOpen = false;
+                this.lastScannedItem = '';
             },
             
             async searchCustomers(q) {

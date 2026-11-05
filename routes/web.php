@@ -53,6 +53,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/stok/scan-invoice', [StockMovementController::class, 'scanInvoice'])->name('stok.scan-invoice');
     Route::post('/stok/batch', [StockMovementController::class, 'batchStore'])->name('stok.batch-store');
 
+    // Pencarian Barang berdasarkan Barcode / SKU (Kasir & Stok Masuk)
+    Route::get('/barang/barcode/{code}', [ProductController::class, 'findByBarcode'])->name('products.barcode');
+
     // ==========================================
     // 3. Khusus Role Admin (Protected by role:admin)
     // ==========================================
