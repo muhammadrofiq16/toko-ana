@@ -417,13 +417,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Avatar Dropdown -->
-                    <div class="flex items-center gap-1 cursor-pointer">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" 
-                             alt="Profile" class="w-9 h-9 rounded-full object-cover border border-brand-500/40">
-                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 hidden sm:block"></i>
-                    </div>
                 </div>
             </header>
 
