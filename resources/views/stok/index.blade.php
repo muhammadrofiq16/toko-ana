@@ -32,6 +32,13 @@
         </div>
 
         <div class="flex items-center gap-3">
+            <button @click="openScanModal()" type="button"
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs hover:shadow transition-all">
+                <i data-lucide="scan-eye" class="w-4 h-4"></i>
+                <span>Scan Faktur (AI)</span>
+                <span class="bg-white/20 text-[10px] px-1.5 py-0.2 rounded font-bold">BARU</span>
+            </button>
+
             <!-- Mode Label (Stok Masuk Only) -->
             <div class="bg-emerald-50 border border-emerald-200 p-1 rounded-xl flex items-center gap-1 text-xs font-semibold text-emerald-800">
                 <div class="px-4 py-2 rounded-lg flex items-center gap-2 bg-white shadow-xs">
@@ -60,131 +67,7 @@
     </div>
     @endif
 
-    <!-- Form Input Box Card (Manual - existing) -->
-    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
-        <form action="{{ route('stok.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="type" value="in">
-
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
-                <!-- Select Product / Barcode Search -->
-                <div class="md:col-span-6">
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="text-xs font-bold text-slate-700">Pilih Nama Barang / Barcode</label>
-                        <div class="flex items-center gap-1.5">
-                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md" title="Tembak barcode langsung menggunakan Barcode Gun">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Barcode Gun Aktif
-                            </span>
-                            <button type="button" @click="openStokScanner()" class="text-[10px] font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition-all" title="Scan Barcode via Kamera HP/Webcam (F2)">
-                                <i data-lucide="scan-barcode" class="w-3 h-3 text-brand-600"></i>
-                                Scan Kamera (F2)
-                            </button>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <i data-lucide="scan-barcode" class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                        <select id="stokProductIdSelect" name="product_id" x-model="selectedProductId" required 
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-10 py-2.5 text-sm text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 appearance-none">
-                            <option value="" disabled>Cari nama atau scan barcode barang...</option>
-                            @foreach($allProducts as $p)
-                                <option value="{{ $p->id }}" {{ $loop->first ? 'selected' : '' }}>
-                                    {{ $p->name }} (SKU: {{ $p->sku }}{{ $p->barcode ? ' • Barcode: '.$p->barcode : '' }}) - Stok: {{ $p->stock }} {{ $p->unit }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <i data-lucide="scan" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2"></i>
-                    </div>
-                    <div x-show="scannedProductName" x-transition class="mt-2 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
-                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i>
-                        <span x-text="scannedProductName"></span>
-                    </div>
-                </div>
-
-                <!-- Quantity Counter -->
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Jumlah Kuantitas</label>
-                    <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1">
-                        <button type="button" @click="if(quantity > 1) quantity--" class="w-9 h-8 rounded-lg bg-white shadow-xs border border-slate-200 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-100">
-                            -
-                        </button>
-                        <input type="number" id="stokQuantityInput" name="quantity" x-model="quantity" min="1" required 
-                               class="w-full text-center bg-transparent border-none text-sm font-bold text-slate-900 focus:outline-none">
-                        <button type="button" @click="quantity++" class="w-9 h-8 rounded-lg bg-white shadow-xs border border-slate-200 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-100">
-                            +
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Unit Selection -->
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Satuan Unit</label>
-                    <select id="stokUnitSelect" name="unit" required 
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
-                        <option value="Dus (Karton)" selected>Dus (Karton)</option>
-                        <option value="Pouch">Pouch</option>
-                        <option value="Botol">Botol</option>
-                        <option value="Bungkus">Bungkus</option>
-                        <option value="Kg">Kg</option>
-                        <option value="Renceng">Renceng</option>
-                        <option value="Kotak">Kotak</option>
-                        <option value="Slop">Slop</option>
-                        <option value="Unit">Unit</option>
-                    </select>
-                </div>
-
-                <!-- Source / Transaction Category -->
-                <div class="md:col-span-4">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Asal / Kategori Transaksi</label>
-                    <select name="source_category" required 
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
-                        <option value="Supplier: PT Indomarco Adi Prima" selected>Supplier: PT Indomarco Adi Prima</option>
-                        <option value="Grosir Pasar Induk">Grosir Pasar Induk</option>
-                        <option value="Retur Supplier">Retur Supplier</option>
-                        <option value="Barang Rusak / Pecah">Barang Rusak / Pecah</option>
-                        <option value="Kasir POS 1 • Penjualan">Kasir POS 1 • Penjualan</option>
-                    </select>
-                </div>
-
-                <!-- Transaction Time -->
-                <div class="md:col-span-4">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Waktu Transaksi</label>
-                    <div class="relative">
-                        <input type="text" value="Hari ini, {{ now()->format('H:i') }} WIB" readonly 
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-3.5 pr-9 py-2.5 text-sm font-semibold text-slate-700">
-                        <i data-lucide="clock" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2"></i>
-                    </div>
-                </div>
-
-                <!-- Notes / Remarks -->
-                <div class="md:col-span-4">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Catatan Singkat (Opsional)</label>
-                    <input type="text" name="notes" placeholder="Cth: Faktur #INV-8891, Exp. Mar 2026" 
-                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
-                </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                    <i data-lucide="info" class="w-4 h-4 text-brand-600"></i>
-                    <span>Stok live otomatis diperbarui di database toko.</span>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <button type="reset" class="px-4 py-2.5 text-slate-500 hover:text-slate-800 font-semibold text-xs rounded-xl transition-all">
-                        Kosongkan
-                    </button>
-                    <button type="submit" class="bg-brand-dark hover:bg-brand-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-xs transition-all">
-                        <i data-lucide="check" class="w-4 h-4"></i>
-                        <span>Simpan Catatan Stok</span>
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- 3 Summary Stat Cards -->
+<!-- 3 Summary Stat Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Card 1: Masuk Hari Ini -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex items-center justify-between">

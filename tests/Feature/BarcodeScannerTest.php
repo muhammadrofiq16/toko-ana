@@ -104,8 +104,7 @@ class BarcodeScannerTest extends TestCase
         $response = $this->actingAs($user)->get('/stok');
 
         $response->assertStatus(200);
-        $response->assertSee('Barcode Gun Aktif');
-        $response->assertSee('Scan Kamera (F2)');
-        $response->assertSee('interactive-stok-scanner');
+        $response->assertSee('Catat Stok Masuk');
+        $response->assertSee('Scan Faktur (AI)');
     }
 }
