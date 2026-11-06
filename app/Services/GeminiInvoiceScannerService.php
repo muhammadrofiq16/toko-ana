@@ -15,7 +15,7 @@ class GeminiInvoiceScannerService
     public function __construct()
     {
         $this->apiKey = config('services.gemini.key') ?: null;
-        $this->defaultModel = config('services.gemini.model', 'gemini-2.5-flash');
+        $this->defaultModel = config('services.gemini.model', 'gemini-3.5-flash');
     }
 
     /**
@@ -25,10 +25,9 @@ class GeminiInvoiceScannerService
     {
         $list = [
             $this->defaultModel,
-            'gemini-2.5-flash',
-            'gemini-2.0-flash',
-            'gemini-1.5-flash',
-            'gemini-2.5-pro',
+            'gemini-3.5-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-3.1-pro-preview',
         ];
 
         return array_values(array_unique(array_filter($list)));
@@ -55,18 +54,23 @@ class GeminiInvoiceScannerService
             $mimeType = $image->getMimeType();
 
             // Get product catalog for matching
-            $products = Product::select('id', 'name', 'sku', 'barcode', 'unit', 'category')
-                ->orderBy('name')
-                ->get()
-                ->map(fn($p) => [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'sku' => $p->sku,
-                    'barcode' => $p->barcode,
-                    'unit' => $p->unit,
-                    'category' => $p->category,
-                ])
-                ->toArray();
+            try {
+                $products = Product::select('id', 'name', 'sku', 'barcode', 'unit', 'category')
+                    ->orderBy('name')
+                    ->get()
+                    ->map(fn($p) => [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'sku' => $p->sku,
+                        'barcode' => $p->barcode,
+                        'unit' => $p->unit,
+                        'category' => $p->category,
+                    ])
+                    ->toArray();
+            } catch (\Throwable $dbEx) {
+                Log::warning('Gemini scanner could not load product catalog: ' . $dbEx->getMessage());
+                $products = [];
+            }
 
             $productCatalog = json_encode($products, JSON_UNESCAPED_UNICODE);
 
