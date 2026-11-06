@@ -426,12 +426,17 @@
 @endsection
 
 @push('scripts')
+<script id="kasir-products-data" type="application/json">@json($products)</script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('cashierApp', () => ({
-            products: @json($products),
-            filteredProducts: [],
+        Alpine.data('cashierApp', () => {
+            const rawProducts = document.getElementById('kasir-products-data')?.textContent;
+            const initialProducts = rawProducts ? JSON.parse(rawProducts) : [];
+
+            return {
+                products: initialProducts,
+                filteredProducts: [],
             searchQuery: '',
             selectedCategory: '',
             
@@ -899,7 +904,8 @@
                     form.submit();
                 }, 100);
             }
-        }));
+        };
     });
+});
 </script>
 @endpush

@@ -166,7 +166,7 @@
 
         function loginForm() {
             return {
-                email: '{{ old('email') }}',
+                email: "{{ old('email', '') }}",
                 password: '',
                 showPassword: false
             }

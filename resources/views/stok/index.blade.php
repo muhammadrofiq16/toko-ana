@@ -502,13 +502,17 @@
 </div>
 
 {{-- Alpine.js Invoice Scan App & Barcode Scanner --}}
+<script id="stok-products-data" type="application/json">@json($allProducts)</script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
 function invoiceScanApp() {
+    const rawProducts = document.getElementById('stok-products-data')?.textContent;
+    const initialProducts = rawProducts ? JSON.parse(rawProducts) : [];
+
     return {
         // Manual form
-        products: @json($allProducts),
-        selectedProductId: '{{ $allProducts->first()->id ?? "" }}',
+        products: initialProducts,
+        selectedProductId: "{{ $allProducts->first()->id ?? '' }}",
         scannedProductName: '',
         quantity: 12,
 
