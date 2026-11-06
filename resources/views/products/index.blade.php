@@ -666,12 +666,12 @@
                                                 <label class="block text-xs font-medium text-slate-700 mb-1">Harga Grosir</label>
                                                 <div class="relative">
                                                     <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none"><span class="text-slate-500 sm:text-xs">Rp</span></div>
-                                                    <input type="number" x-model="unit.price_wholesale" :name="`units[${index}][price_wholesale]`" min="0" class="pl-8 w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
+                                                    <input type="number" x-model="unit.price_wholesale" :name="`units[${index}][price_wholesale]`" min="0" placeholder="0" class="pl-8 w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
                                                 </div>
                                             </div>
                                             <div>
-                                                <label class="block text-xs font-medium text-slate-700 mb-1">Min. Beli Grosir</label>
-                                                <input type="number" x-model="unit.min_wholesale_qty" :name="`units[${index}][min_wholesale_qty]`" min="1" class="w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
+                                                <label class="block text-xs font-medium text-slate-700 mb-1">Min. Grosir <span class="text-slate-400 font-normal">(≥2 pcs)</span></label>
+                                                <input type="number" x-model="unit.min_wholesale_qty" :name="`units[${index}][min_wholesale_qty]`" min="2" placeholder="Kosong = reseller" class="w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
                                             </div>
                                         </div>
                                     </div>
@@ -827,12 +827,12 @@
                                                 <label class="block text-xs font-medium text-slate-700 mb-1">Harga Grosir</label>
                                                 <div class="relative">
                                                     <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none"><span class="text-slate-500 sm:text-xs">Rp</span></div>
-                                                    <input type="number" x-model="unit.price_wholesale" :name="`units[${index}][price_wholesale]`" min="0" class="pl-8 w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
+                                                    <input type="number" x-model="unit.price_wholesale" :name="`units[${index}][price_wholesale]`" min="0" placeholder="0" class="pl-8 w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
                                                 </div>
                                             </div>
                                             <div>
-                                                <label class="block text-xs font-medium text-slate-700 mb-1">Min. Beli Grosir</label>
-                                                <input type="number" x-model="unit.min_wholesale_qty" :name="`units[${index}][min_wholesale_qty]`" min="1" class="w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
+                                                <label class="block text-xs font-medium text-slate-700 mb-1">Min. Grosir <span class="text-slate-400 font-normal">(≥2 pcs)</span></label>
+                                                <input type="number" x-model="unit.min_wholesale_qty" :name="`units[${index}][min_wholesale_qty]`" min="2" placeholder="Kosong = reseller" class="w-full rounded-md border-slate-200 text-sm focus:border-brand-500 focus:ring-brand-500">
                                             </div>
                                         </div>
                                     </div>
@@ -1125,7 +1125,7 @@
                 conversion_factor: 1,
                 price_retail: '',
                 price_wholesale: '',
-                min_wholesale_qty: 1
+                min_wholesale_qty: ''
             }],
             editUnits: [],
 
@@ -1168,7 +1168,7 @@
                     conversion_factor: 1,
                     price_retail: '',
                     price_wholesale: '',
-                    min_wholesale_qty: 1
+                    min_wholesale_qty: ''
                 }];
                 this.addModalOpen = true;
                 this.$nextTick(() => lucide.createIcons());
@@ -1189,7 +1189,7 @@
                         conversion_factor: u.conversion_factor,
                         price_retail: u.price_tier ? u.price_tier.price_retail : '',
                         price_wholesale: u.price_tier ? u.price_tier.price_wholesale : '',
-                        min_wholesale_qty: u.price_tier ? u.price_tier.min_wholesale_qty : 1
+                        min_wholesale_qty: (u.price_tier && u.price_tier.min_wholesale_qty > 1) ? u.price_tier.min_wholesale_qty : ''
                     }));
                 } else {
                     this.editUnits = [{
@@ -1198,7 +1198,7 @@
                         conversion_factor: 1,
                         price_retail: '',
                         price_wholesale: '',
-                        min_wholesale_qty: 1
+                        min_wholesale_qty: ''
                     }];
                 }
                 
@@ -1207,7 +1207,7 @@
             },
             
             addUnit(target) {
-                const emptyRow = { id: '', unit_name: '', conversion_factor: '', price_retail: '', price_wholesale: '', min_wholesale_qty: 1 };
+                const emptyRow = { id: '', unit_name: '', conversion_factor: '', price_retail: '', price_wholesale: '', min_wholesale_qty: '' };
                 if (target === 'add') this.addUnits.push({...emptyRow});
                 else if (target === 'edit') this.editUnits.push({...emptyRow});
                 this.$nextTick(() => lucide.createIcons());

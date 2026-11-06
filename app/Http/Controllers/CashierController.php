@@ -106,6 +106,8 @@ class CashierController extends Controller
                 $totalAmount   = 0;
                 $itemsToCreate = [];
                 $cashierName   = Auth::check() ? Auth::user()->name : \App\Models\Setting::get('cashier_name', 'Budi Santoso');
+                $customer      = !empty($request->customer_id) ? Customer::find($request->customer_id) : null;
+                $customerType  = $customer ? $customer->type : null;
 
                 foreach ($cartItems as $item) {
                     $product = Product::find($item['product_id']);
@@ -129,8 +131,8 @@ class CashierController extends Controller
 
                     if (!$productUnit) continue;
 
-                    // Determine price based on mode + qty
-                    $unitPrice   = $productUnit->getPriceFor($saleMode, $qty);
+                    // Determine price based on mode + qty + customer type
+                    $unitPrice   = $productUnit->getPriceFor($saleMode, $qty, $customerType);
                     $unitName    = $productUnit->unit_name;
                     $stockDeduct = $qty * $productUnit->conversion_factor;
 
@@ -184,7 +186,7 @@ class CashierController extends Controller
                     'cashier_name'   => $cashierName,
                     'customer_name'  => $request->customer_name ?: 'Pelanggan Umum',
                     'customer_id'    => $request->customer_id ?: null,
-                    'sale_mode'      => $saleMode,
+                    'sale_mode'      => ($customerType === 'reseller' || $saleMode === 'grosir') ? 'grosir' : 'eceran',
                     'status'         => 'success',
                     'notes'          => $request->notes,
                 ]);
