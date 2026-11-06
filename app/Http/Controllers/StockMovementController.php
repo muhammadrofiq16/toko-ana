@@ -94,8 +94,19 @@ class StockMovementController extends Controller
             'invoice_image.max' => 'Ukuran gambar maksimal 10MB.',
         ]);
 
-        $scanner = new GeminiInvoiceScannerService();
-        $result = $scanner->scan($request->file('invoice_image'));
+        try {
+            $scanner = new GeminiInvoiceScannerService();
+            $result = $scanner->scan($request->file('invoice_image'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Scan invoice exception: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses faktur: ' . $e->getMessage(),
+            ], 500);
+        }
 
         if (!$result['success']) {
             return response()->json([

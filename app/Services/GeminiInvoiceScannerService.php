@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiInvoiceScannerService
 {
-    protected string $apiKey;
+    protected ?string $apiKey;
     protected string $defaultModel;
 
     public function __construct()
     {
-        $this->apiKey = config('services.gemini.key');
-        $this->defaultModel = config('services.gemini.model', 'gemini-3.5-flash');
+        $this->apiKey = config('services.gemini.key') ?: null;
+        $this->defaultModel = config('services.gemini.model', 'gemini-2.5-flash');
     }
 
     /**
@@ -25,10 +25,10 @@ class GeminiInvoiceScannerService
     {
         $list = [
             $this->defaultModel,
-            'gemini-3.5-flash',
-            'gemini-3.5-flash-lite',
-            'gemini-flash-latest',
-            'gemini-3.8-flash',
+            'gemini-2.5-flash',
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
+            'gemini-2.5-pro',
         ];
 
         return array_values(array_unique(array_filter($list)));
@@ -42,6 +42,13 @@ class GeminiInvoiceScannerService
      */
     public function scan(UploadedFile $image): array
     {
+        if (empty($this->apiKey)) {
+            return [
+                'success' => false,
+                'error' => 'GEMINI_API_KEY belum dikonfigurasi. Pastikan GEMINI_API_KEY sudah diisi pada file .env (jika di localhost) atau di Environment Variables Vercel/Hosting.',
+            ];
+        }
+
         try {
             // Get base64 encoded image
             $imageData = base64_encode(file_get_contents($image->getRealPath()));
@@ -101,7 +108,10 @@ class GeminiInvoiceScannerService
 
                 try {
                     $response = Http::timeout(45)
-                        ->withHeaders(['Content-Type' => 'application/json'])
+                        ->withHeaders([
+                            'Content-Type' => 'application/json',
+                            'x-goog-api-key' => $this->apiKey,
+                        ])
                         ->withQueryParameters(['key' => $this->apiKey])
                         ->post($url, $payload);
 
