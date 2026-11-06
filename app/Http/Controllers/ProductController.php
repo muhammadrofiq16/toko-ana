@@ -128,7 +128,7 @@ class ProductController extends Controller
             'units.*.conversion_factor'=> 'required|integer|min:1',
             'units.*.price_retail'     => 'required|numeric|min:0',
             'units.*.price_wholesale'  => 'nullable|numeric|min:0',
-            'units.*.min_wholesale_qty'=> 'nullable|integer|min:1',
+            'units.*.min_wholesale_qty'=> 'nullable|integer|min:2',
         ]);
 
         $product = Product::create([
@@ -155,7 +155,7 @@ class ProductController extends Controller
             $unit->priceTier()->create([
                 'price_retail'      => $unitData['price_retail'],
                 'price_wholesale'   => $unitData['price_wholesale'] ?? 0,
-                'min_wholesale_qty' => $unitData['min_wholesale_qty'] ?? 1,
+                'min_wholesale_qty' => !empty($unitData['min_wholesale_qty']) && (int) $unitData['min_wholesale_qty'] > 1 ? (int) $unitData['min_wholesale_qty'] : null,
             ]);
         }
 
@@ -182,7 +182,7 @@ class ProductController extends Controller
             'units.*.conversion_factor'=> 'required|integer|min:1',
             'units.*.price_retail'     => 'required|numeric|min:0',
             'units.*.price_wholesale'  => 'nullable|numeric|min:0',
-            'units.*.min_wholesale_qty'=> 'nullable|integer|min:1',
+            'units.*.min_wholesale_qty'=> 'nullable|integer|min:2',
         ]);
 
         $product->update([
@@ -202,6 +202,10 @@ class ProductController extends Controller
         $keepIds = [];
 
         foreach ($validated['units'] as $index => $unitData) {
+            $minWholesaleQty = !empty($unitData['min_wholesale_qty']) && (int) $unitData['min_wholesale_qty'] > 1
+                ? (int) $unitData['min_wholesale_qty']
+                : null;
+
             if (!empty($unitData['id'])) {
                 // Update existing unit
                 $unit = ProductUnit::find($unitData['id']);
@@ -214,7 +218,7 @@ class ProductController extends Controller
                     $unit->priceTier()->updateOrCreate([], [
                         'price_retail'      => $unitData['price_retail'],
                         'price_wholesale'   => $unitData['price_wholesale'] ?? 0,
-                        'min_wholesale_qty' => $unitData['min_wholesale_qty'] ?? 1,
+                        'min_wholesale_qty' => $minWholesaleQty,
                     ]);
                     $keepIds[] = $unit->id;
                 }
@@ -228,7 +232,7 @@ class ProductController extends Controller
                 $unit->priceTier()->create([
                     'price_retail'      => $unitData['price_retail'],
                     'price_wholesale'   => $unitData['price_wholesale'] ?? 0,
-                    'min_wholesale_qty' => $unitData['min_wholesale_qty'] ?? 1,
+                    'min_wholesale_qty' => $minWholesaleQty,
                 ]);
                 $keepIds[] = $unit->id;
             }

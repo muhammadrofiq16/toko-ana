@@ -51,11 +51,23 @@
                         </button>
                     </div>
 
-                    <!-- Customer Search - Light green bg -->
+                    <!-- Customer Search & Mode Selector - Light green bg -->
                     <div class="p-3 border-b border-brand-100 bg-brand-50/50 relative">
+                        <!-- Mode Selector Toggle -->
+                        <div class="flex items-center gap-1 bg-brand-100/70 p-1 rounded-lg border border-brand-200 mb-2.5">
+                            <button type="button" @click="saleMode = 'eceran'" class="flex-1 py-1.5 px-3 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs" :class="saleMode === 'eceran' ? 'bg-white text-brand-700 shadow-sm border border-brand-200' : 'text-slate-600 hover:text-slate-900'">
+                                <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                                <span>Retail (Umum)</span>
+                            </button>
+                            <button type="button" @click="saleMode = 'grosir'" class="flex-1 py-1.5 px-3 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs" :class="saleMode === 'grosir' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'">
+                                <i data-lucide="tags" class="w-3.5 h-3.5"></i>
+                                <span>Grosir (Reseller)</span>
+                            </button>
+                        </div>
+
                         <div class="relative">
                             <i data-lucide="user" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-brand-400"></i>
-                            <input type="text" @input.debounce.300ms="searchCustomers($event.target.value)" placeholder="Cari Pelanggan (opsional)..." class="w-full pl-9 pr-8 py-2 bg-white border border-brand-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm outline-none transition-all">
+                            <input type="text" @input.debounce.300ms="searchCustomers($event.target.value)" placeholder="Cari Pelanggan / Reseller (opsional)..." class="w-full pl-9 pr-8 py-2 bg-white border border-brand-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm outline-none transition-all">
                             <button x-show="selectedCustomer" @click="clearCustomer()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500">
                                 <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
@@ -69,25 +81,29 @@
                                         <div class="font-medium text-sm text-slate-800" x-text="c.name"></div>
                                         <div class="text-xs text-slate-500" x-text="c.phone || '-'"></div>
                                     </div>
-                                    <span class="text-[10px] px-2 py-0.5 rounded-full font-medium" :class="c.is_reseller ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'" x-text="c.is_reseller ? 'Reseller' : 'Reguler'"></span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="(c.type === 'reseller' || c.is_reseller) ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-600'" x-text="(c.type === 'reseller' || c.is_reseller) ? 'Reseller (Grosir)' : 'Retail'"></span>
                                 </div>
                             </template>
                         </div>
                         
                         <!-- Selected Customer Info -->
-                        <div x-show="selectedCustomer" class="mt-2 flex items-center justify-between bg-brand-100 px-3 py-2 rounded-md border border-brand-200">
+                        <div x-show="selectedCustomer" class="mt-2 flex items-center justify-between px-3 py-2 rounded-md border" :class="(selectedCustomer?.type === 'reseller' || selectedCustomer?.is_reseller) ? 'bg-purple-50 border-purple-200 text-purple-900' : 'bg-brand-100 border-brand-200 text-brand-900'">
                             <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-brand-200 text-brand-700 flex items-center justify-center text-xs font-bold" x-text="selectedCustomer?.name.charAt(0)"></div>
-                                <span class="text-sm font-medium text-brand-900" x-text="selectedCustomer?.name"></span>
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" :class="(selectedCustomer?.type === 'reseller' || selectedCustomer?.is_reseller) ? 'bg-purple-200 text-purple-700' : 'bg-brand-200 text-brand-700'" x-text="selectedCustomer?.name.charAt(0)"></div>
+                                <div>
+                                    <span class="text-sm font-semibold block" x-text="selectedCustomer?.name"></span>
+                                    <span x-show="selectedCustomer?.phone" class="text-[11px] opacity-75" x-text="selectedCustomer?.phone"></span>
+                                </div>
                             </div>
-                            <span class="text-[10px] px-2 py-0.5 rounded bg-brand-200 text-brand-800 font-medium" x-text="selectedCustomer?.is_reseller ? 'Reseller' : 'Reguler'"></span>
+                            <span class="text-[10px] px-2 py-0.5 rounded font-bold" :class="(selectedCustomer?.type === 'reseller' || selectedCustomer?.is_reseller) ? 'bg-purple-600 text-white' : 'bg-brand-200 text-brand-800'" x-text="(selectedCustomer?.type === 'reseller' || selectedCustomer?.is_reseller) ? 'Reseller • Harga Grosir' : 'Retail'"></span>
                         </div>
                     </div>
 
                     <!-- Mode Indicator -->
-                    <div x-show="saleMode === 'grosir'" class="bg-purple-600 text-white text-xs font-medium px-4 py-1.5 flex justify-center items-center gap-2 shadow-inner">
+                    <div x-show="saleMode === 'grosir'" class="bg-purple-600 text-white text-xs font-bold px-4 py-1.5 flex justify-center items-center gap-2 shadow-inner">
                         <i data-lucide="tags" class="w-3.5 h-3.5"></i>
-                        MODE HARGA GROSIR AKTIF
+                        <span>MODE HARGA GROSIR AKTIF</span>
+                        <span x-show="selectedCustomer && (selectedCustomer.type === 'reseller' || selectedCustomer.is_reseller)" class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">(Reseller)</span>
                     </div>
 
                     <!-- Cart Items - Light green background -->
@@ -106,14 +122,17 @@
                                         <div class="flex items-center gap-1 mt-1">
                                             <span class="text-[10px] text-slate-500" x-text="item.sku"></span>
                                             <!-- Price badge logic -->
-                                            <template x-if="saleMode === 'grosir'">
-                                                <span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">GROSIR</span>
+                                            <template x-if="saleMode === 'grosir' || (selectedCustomer && (selectedCustomer.type === 'reseller' || selectedCustomer.is_reseller))">
+                                                <span class="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200 font-bold flex items-center gap-1">
+                                                    <i data-lucide="tags" class="w-2.5 h-2.5"></i>
+                                                    <span x-text="(selectedCustomer && (selectedCustomer.type === 'reseller' || selectedCustomer.is_reseller)) ? 'RESELLER' : 'GROSIR'"></span>
+                                                </span>
                                             </template>
-                                            <template x-if="saleMode !== 'grosir' && item.quantity >= getSelectedUnit(item)?.price_tier?.min_wholesale_qty && getSelectedUnit(item)?.price_tier?.price_wholesale > 0">
-                                                <span class="text-[9px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded border border-indigo-200">GROSIR AUTO</span>
+                                            <template x-if="saleMode !== 'grosir' && (!selectedCustomer || (selectedCustomer.type !== 'reseller' && !selectedCustomer.is_reseller)) && getSelectedUnit(item)?.price_tier?.min_wholesale_qty > 1 && item.quantity >= getSelectedUnit(item)?.price_tier?.min_wholesale_qty && getSelectedUnit(item)?.price_tier?.price_wholesale > 0">
+                                                <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200" x-text="'GROSIR AUTO (≥' + getSelectedUnit(item)?.price_tier?.min_wholesale_qty + ')'"></span>
                                             </template>
-                                            <template x-if="saleMode !== 'grosir' && (item.quantity < getSelectedUnit(item)?.price_tier?.min_wholesale_qty || !getSelectedUnit(item)?.price_tier?.price_wholesale)">
-                                                <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">ECERAN</span>
+                                            <template x-if="saleMode !== 'grosir' && (!selectedCustomer || (selectedCustomer.type !== 'reseller' && !selectedCustomer.is_reseller)) && (getSelectedUnit(item)?.price_tier?.min_wholesale_qty <= 1 || item.quantity < getSelectedUnit(item)?.price_tier?.min_wholesale_qty || !getSelectedUnit(item)?.price_tier?.price_wholesale)">
+                                                <span class="text-[9px] bg-slate-100 text-slate-600 font-medium px-1.5 py-0.5 rounded border border-slate-200">RETAIL</span>
                                             </template>
                                         </div>
                                     </div>
@@ -188,7 +207,9 @@
                         <div class="flex justify-between items-end mb-4">
                             <div>
                                 <span class="text-sm font-medium text-brand-700">Total Pembayaran</span>
-                                <div x-show="saleMode === 'grosir'" class="text-[10px] text-purple-600 font-bold bg-purple-100 px-2 py-0.5 rounded inline-block ml-2">HARGA GROSIR</div>
+                                <div x-show="saleMode === 'grosir' || (selectedCustomer && (selectedCustomer.type === 'reseller' || selectedCustomer.is_reseller))" class="text-[10px] text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded inline-block ml-2 border border-purple-200">
+                                    <span x-text="(selectedCustomer && (selectedCustomer.type === 'reseller' || selectedCustomer.is_reseller)) ? 'RESELLER GROSIR' : 'HARGA GROSIR'"></span>
+                                </div>
                             </div>
                             <span class="text-2xl font-black text-brand-800" x-text="formatRupiah(totalAmount)"></span>
                         </div>
@@ -319,8 +340,18 @@
                             
                             <div class="mt-auto pt-3 border-t border-slate-100 flex flex-col gap-1">
                                 <div class="flex justify-between items-end">
-                                    <span class="text-xs text-slate-500" x-text="product.units && product.units.length > 0 ? 'Mulai' : ''"></span>
-                                    <span class="font-bold text-brand-700 text-base" x-text="formatRupiah(product.units[0]?.price_tier?.price_retail || 0)"></span>
+                                    <span class="text-[11px] text-slate-400 font-medium" x-text="(saleMode === 'grosir' || (selectedCustomer && (selectedCustomer.type === 'reseller' || selectedCustomer.is_reseller))) ? 'Grosir' : 'Retail'"></span>
+                                    <div class="text-right">
+                                        <template x-if="saleMode === 'grosir' || (selectedCustomer && (selectedCustomer.type === 'reseller' || selectedCustomer.is_reseller))">
+                                            <span class="font-bold text-purple-700 text-base" x-text="formatRupiah((product.units[0]?.price_tier?.price_wholesale > 0) ? product.units[0]?.price_tier?.price_wholesale : product.units[0]?.price_tier?.price_retail)"></span>
+                                        </template>
+                                        <template x-if="saleMode !== 'grosir' && (!selectedCustomer || (selectedCustomer.type !== 'reseller' && !selectedCustomer.is_reseller))">
+                                            <div>
+                                                <span class="font-bold text-brand-700 text-base" x-text="formatRupiah(product.units[0]?.price_tier?.price_retail || 0)"></span>
+                                                <div x-show="product.units[0]?.price_tier?.min_wholesale_qty > 1 && product.units[0]?.price_tier?.price_wholesale > 0" class="text-[10px] text-indigo-600 font-semibold" x-text="`Grosir ${formatRupiah(product.units[0]?.price_tier?.price_wholesale)} (≥${product.units[0]?.price_tier?.min_wholesale_qty})`"></div>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
                                 <div x-show="product.units && product.units.length > 1" class="text-[10px] text-right text-slate-400" x-text="`${product.units.length} satuan tersedia`"></div>
                             </div>
@@ -637,16 +668,17 @@
             selectCustomer(c) {
                 this.selectedCustomer = c;
                 this.customerResults = [];
-                if (c.is_reseller) {
+                let isReseller = (c.type === 'reseller' || c.is_reseller);
+                if (isReseller) {
                     this.saleMode = 'grosir';
-                } else {
-                    this.saleMode = 'eceran';
                 }
+                this.$nextTick(() => lucide.createIcons());
             },
             
             clearCustomer() {
                 this.selectedCustomer = null;
                 this.saleMode = 'eceran';
+                this.$nextTick(() => lucide.createIcons());
             },
             
             addToCart(product) {
@@ -728,16 +760,20 @@
                 
                 let p_retail = parseFloat(tier.price_retail) || 0;
                 let p_wholesale = parseFloat(tier.price_wholesale) || 0;
-                let min_qty = tier.min_wholesale_qty || 999999;
+                let min_qty = parseInt(tier.min_wholesale_qty) || 0;
+                let isReseller = this.selectedCustomer && (this.selectedCustomer.type === 'reseller' || this.selectedCustomer.is_reseller);
                 
-                if (this.saleMode === 'grosir') {
+                // 1. Mode Grosir OR Customer is Reseller -> Wholesale price applies
+                if (this.saleMode === 'grosir' || isReseller) {
                     return p_wholesale > 0 ? p_wholesale : p_retail;
                 }
                 
-                if (item.quantity >= min_qty && p_wholesale > 0) {
+                // 2. Retail Mode: Only apply wholesale if min_qty > 1 and item.quantity >= min_qty
+                if (min_qty > 1 && item.quantity >= min_qty && p_wholesale > 0) {
                     return p_wholesale;
                 }
                 
+                // 3. Default to retail price
                 return p_retail;
             },
             

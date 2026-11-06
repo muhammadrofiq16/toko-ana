@@ -27,22 +27,28 @@ class ProductUnit extends Model
     }
 
     /**
-     * Get the appropriate price based on mode and quantity.
+     * Get the appropriate price based on mode, quantity, and customer type.
      */
-    public function getPriceFor(string $mode = 'eceran', int $qty = 1): float
+    public function getPriceFor(string $mode = 'eceran', int $qty = 1, ?string $customerType = null): float
     {
         $tier = $this->priceTier;
         if (!$tier) return 0;
 
-        if ($mode === 'grosir') {
-            return (float) $tier->price_wholesale > 0 ? (float) $tier->price_wholesale : (float) $tier->price_retail;
+        $retailPrice = (float) $tier->price_retail;
+        $wholesalePrice = (float) $tier->price_wholesale > 0 ? (float) $tier->price_wholesale : $retailPrice;
+
+        // Condition 1: Mode Grosir OR Reseller Customer gets wholesale price regardless of quantity
+        if ($mode === 'grosir' || $customerType === 'reseller') {
+            return $wholesalePrice;
         }
 
-        // Eceran mode: check if qty meets min_wholesale_qty for auto-grosir
-        if ($tier->min_wholesale_qty > 0 && $qty >= $tier->min_wholesale_qty && $tier->price_wholesale > 0) {
+        // Condition 2: Retail mode with volume-based threshold (min_wholesale_qty must be > 1)
+        $minQty = (int) ($tier->min_wholesale_qty ?? 0);
+        if ($minQty > 1 && $qty >= $minQty && (float) $tier->price_wholesale > 0) {
             return (float) $tier->price_wholesale;
         }
 
-        return (float) $tier->price_retail;
+        // Default: Retail price
+        return $retailPrice;
     }
 }
